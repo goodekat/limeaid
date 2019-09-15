@@ -1,11 +1,17 @@
 Package: limeaid
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Diagnose LIME Explanations
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: Katherine Goode
+Maintainer: Katherine Goode <kgoode@iastate.edu>
+Description: Assess explanations produced by LIME using diagnostic plots
+License: MIT
 Encoding: UTF-8
 LazyData: true
+RoxygenNote: 6.1.1
+Imports:
+  dplyr,
+  future,
+  furrr,
+  lime,
+  purrr
