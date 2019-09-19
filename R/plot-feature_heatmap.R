@@ -11,9 +11,11 @@ feature_heatmap <- function(explanations, feature_nums = NULL){
 
   # Organize the explanation data for plotting
   heatmap_data <- explanations %>%
+    select(sim_method, nbins, case, feature, feature_weight) %>%
+    mutate(feature_magnitude = abs(feature_weight)) %>%
     group_by(sim_method, nbins, case) %>%
+    arrange(sim_method, nbins, case, desc(feature_magnitude)) %>%
     mutate(feature_num = 1:n()) %>%
-    select(sim_method, nbins, case, feature_num, feature) %>%
     ungroup() %>%
     mutate(nbins = factor(nbins),
            case = as.numeric(case),
