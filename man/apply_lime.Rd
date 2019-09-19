@@ -41,44 +41,23 @@ and 'normal_approx'}
 Applies LIME with the specified tunning parameter options
 }
 \examples{
-# Load packages
-library(randomForest)
-library(tidyverse)
 
-# Generate the data
-l1 <- 0
-u1 <- 20
-l2 <- -2
-u2 <- 2
-set.seed(20190913)
-sine_data <- tibble(x1 = runif(n = 600, min = l1, max = u1),
-x2 = runif(600, min = l2, max = u2)) \%>\%
-mutate(y = factor(ifelse(x2 > sin(x1), 1, 0)))
+library(caret)
 
-# Separte the data into training and testing parts
-sine_data_train <- sine_data[1:500,]
-sine_data_test <- sine_data[501:600,]
+# Split up the data set
+iris_test <- iris[1:5, 1:4]
+iris_train <- iris[-(1:5), 1:4]
+iris_lab <- iris[[5]][-(1:5)]
 
-# Fit a random forest
-rfsine <- randomForest(x = sine_data_train \%>\% select(x1, x2),
-y = sine_data_train \%>\% pull(y))
+# Create Random Forest model on iris data
+model <- train(iris_train, iris_lab, method = 'rf')
 
-# Obtain predictions on the training and testing data
-sine_data_train$rfpred <- predict(rfsine)
-sine_data_test$rfpred <- predict(rfsine, sine_data_test \%>\% select(x1, x2))
-
-# Apply lime with various input options
-sine_lime_explain <- apply_lime(train = sine_data_train \%>\% select(x1, x2),
-           test = sine_data_test \%>\% select(x1, x2),
-           model = lime::as_classifier(rfsine),
-           label = "1",
-           n_features = 2,
-           sim_method = c('quantile_bins', 'equal_bins', 'kernel_density', 'normal_approx'),
-           nbins = 2,
-           feature_select = "auto",
-           dist_fun = "gower",
-           kernel_width = NULL,
-           gower_pow = 1,
-           nreps = 1,
-           seed = 20190914)
+iris_lime_explain <- apply_lime(train = iris_train,
+                                test = iris_test,
+                                model = model,
+                                label = "virginica",
+                                n_features = 2,
+                                sim_method = c('quantile_bins', 'equal_bins', 'kernel_density', 'normal_approx'),
+                                nbins = 2,
+                                seed = 20190914)
 }

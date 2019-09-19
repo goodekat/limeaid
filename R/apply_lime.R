@@ -18,54 +18,34 @@
 #' @param nreps Number of times to apply LIME for each set of input options
 #' @param seed Seed number if specifying a seed is desired
 #'
-#' @importFrom dplyr mutate %>%
+#' @importFrom dplyr bind_cols mutate select %>%
 #' @importFrom future multiprocess plan
 #' @importFrom furrr future_pmap
 #' @importFrom lime as_classifier lime explain
-#' @importFrom purrr pmap
+#' @importFrom purrr map_df
+#'
 #' @export apply_lime
 #'
 #' @examples
-#' # Load packages
-#' library(randomForest)
-#' library(tidyverse)
 #'
-#' # Generate the data
-#' l1 <- 0
-#' u1 <- 20
-#' l2 <- -2
-#' u2 <- 2
-#' set.seed(20190913)
-#' sine_data <- tibble(x1 = runif(n = 600, min = l1, max = u1),
-#' x2 = runif(600, min = l2, max = u2)) %>%
-#' mutate(y = factor(ifelse(x2 > sin(x1), 1, 0)))
+#' library(caret)
 #'
-#' # Separte the data into training and testing parts
-#' sine_data_train <- sine_data[1:500,]
-#' sine_data_test <- sine_data[501:600,]
+#' # Split up the data set
+#' iris_test <- iris[1:5, 1:4]
+#' iris_train <- iris[-(1:5), 1:4]
+#' iris_lab <- iris[[5]][-(1:5)]
 #'
-#' # Fit a random forest
-#' rfsine <- randomForest(x = sine_data_train %>% select(x1, x2),
-#' y = sine_data_train %>% pull(y))
+#' # Create Random Forest model on iris data
+#' model <- train(iris_train, iris_lab, method = 'rf')
 #'
-#' # Obtain predictions on the training and testing data
-#' sine_data_train$rfpred <- predict(rfsine)
-#' sine_data_test$rfpred <- predict(rfsine, sine_data_test %>% select(x1, x2))
-#'
-#' # Apply lime with various input options
-#' sine_lime_explain <- apply_lime(train = sine_data_train %>% select(x1, x2),
-#'            test = sine_data_test %>% select(x1, x2),
-#'            model = lime::as_classifier(rfsine),
-#'            label = "1",
-#'            n_features = 2,
-#'            sim_method = c('quantile_bins', 'equal_bins', 'kernel_density', 'normal_approx'),
-#'            nbins = 2,
-#'            feature_select = "auto",
-#'            dist_fun = "gower",
-#'            kernel_width = NULL,
-#'            gower_pow = 1,
-#'            nreps = 1,
-#'            seed = 20190914)
+#' iris_lime_explain <- apply_lime(train = iris_train,
+#'                                 test = iris_test,
+#'                                 model = model,
+#'                                 label = "virginica",
+#'                                 n_features = 2,
+#'                                 sim_method = c('quantile_bins', 'equal_bins', 'kernel_density', 'normal_approx'),
+#'                                 nbins = 2,
+#'                                 seed = 20190914)
 
 apply_lime <- function(train, test, model, label, n_features,
                        sim_method, nbins, feature_select = "auto",
@@ -79,20 +59,25 @@ apply_lime <- function(train, test, model, label, n_features,
   inputs <- organize_inputs(sim_method, nbins)
 
   # Tell R to run the upcoming code in parallel
-  #future::plan(future::multiprocess)
+  future::plan(future::multiprocess)
 
   # Apply the lime and explain functions for all specified inputs
-  results <- purrr::pmap(.l = inputs,
-                         .f = lime_explain,
-                         train = train,
-                         test = test,
-                         model = model,
-                         label = label,
-                         n_features = n_features)
+  results <- furrr::future_pmap(.l = inputs,
+                                .f = lime_explain, # lime_explain is a helper function in limeaid
+                                train = train,
+                                test = test,
+                                model = model,
+                                label = label,
+                                n_features = n_features)
 
   # Separate the lime and explain function results
   results <- list(lime = map(results, function(list) list$lime),
                   explain = map_df(results, function(list) list$explain))
+
+  # Specify the order of the factors of sim_method
+  sim_method_levels <- sim_method
+  results$explain <- results$explain %>%
+    mutate(sim_method = factor(sim_method, levels = sim_method_levels))
 
   # Name the items in the lime list
   # names(hamby224_lime) <- map_chr(1:22, function(case)
@@ -109,7 +94,7 @@ apply_lime <- function(train, test, model, label, n_features,
 
 }
 
-# Helper function for organizing the inputs options in a list
+# Organize the simulation methods in a way to be used by LIME
 organize_inputs <- function(sim_method, nbins){
 
   # Create a dataframe with the bin based simulation methods
@@ -127,9 +112,7 @@ organize_inputs <- function(sim_method, nbins){
 
   # Add lime input variables
   inputs <- inputs %>%
-    mutate(bin_continuous = ifelse(sim_method %in% c("quantile_bins", "equal_bins"), TRUE, FALSE),
-           quantile_bins = ifelse(sim_method != "equal_bins", TRUE, FALSE),
-           use_density = ifelse(sim_method != "normal_approx", TRUE, FALSE)) %>%
+    bind_cols(purrr::map_df(.x = inputs$sim_method, .f = method2inputs)) %>%
     select(bin_continuous, quantile_bins, nbins, use_density)
 
   # Return the inputs as a list
@@ -156,10 +139,11 @@ lime_explain <- function(bin_continuous, quantile_bins, nbins,
                             explainer = lime,
                             labels = label,
                             n_features = n_features) %>%
-    mutate(bin_continuous = bin_continuous,
-           quantile_bins = quantile_bins,
-           nbins = nbins,
-           use_density = use_density)
+    mutate(sim_method = inputs2method(bin_continuous = bin_continuous,
+                                      quantile_bins = quantile_bins,
+                                      use_density = use_density),
+           nbins = ifelse(sim_method %in% c("quantile_bins", "equal_bins"), nbins, NA)) %>%
+    select(sim_method, nbins, model_type:prediction)
 
   return(list(lime = lime, explain = explain))
 
