@@ -15,7 +15,6 @@ Imports:
   future,
   furrr,
   lime,
-  purrr,
-  viridis
+  purrr
 Suggests: 
   caret

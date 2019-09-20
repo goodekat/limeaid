@@ -1,5 +1,4 @@
 #' @importFrom checkmate expect_data_frame
-#' @importFrom viridis scale_fill_viridis
 #'
 #' @export feature_heatmap
 #'
@@ -37,7 +36,6 @@ feature_heatmap <- function(explanations, feature_nums = NULL){
   ggplot(heatmap_data, aes(x = nbins, y = case, fill = feature)) +
     geom_tile() +
     facet_grid(feature_num ~ sim_method, scales = "free", space = "free") +
-    viridis::scale_fill_viridis(option = "magma", discrete = TRUE) +
     theme_bw() +
     labs(x = "Number of Bins",
          y = "Prediction Number",
