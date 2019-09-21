@@ -12,9 +12,14 @@ RoxygenNote: 6.1.1
 Imports:
   checkmate,
   dplyr,
+  forcats,
   future,
   furrr,
   lime,
-  purrr
+  purrr,
+  randomForest,
+  tidyr
 Suggests: 
-  caret
+    caret,
+    testthat (>= 2.1.0),
+    vdiffr

@@ -19,10 +19,10 @@
 #' @param seed Seed number if specifying a seed is desired
 #'
 #' @importFrom dplyr bind_cols mutate select %>%
-#' @importFrom future multiprocess plan
+#' @importFrom future multisession plan
 #' @importFrom furrr future_pmap
 #' @importFrom lime as_classifier lime explain
-#' @importFrom purrr map_df
+#' @importFrom purrr map map_df
 #'
 #' @export apply_lime
 #'
@@ -59,7 +59,7 @@ apply_lime <- function(train, test, model, label, n_features,
   inputs <- organize_inputs(sim_method, nbins)
 
   # Tell R to run the upcoming code in parallel
-  future::plan(future::multiprocess)
+  future::plan(future::multisession)
 
   # Apply the lime and explain functions for all specified inputs
   results <- furrr::future_pmap(.l = inputs,
@@ -72,7 +72,9 @@ apply_lime <- function(train, test, model, label, n_features,
 
   # Separate the lime and explain function results
   results <- list(lime = map(results, function(list) list$lime),
-                  explain = map_df(results, function(list) list$explain))
+                  explain = map_df(results,
+                                   function(list) list$explain,
+                                   .id = "implementation"))
 
   # Specify the order of the factors of sim_method
   sim_method_levels <- sim_method

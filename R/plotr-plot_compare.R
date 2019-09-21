@@ -1,0 +1,43 @@
+#' Plot of LIME Comparison Metrics
+#'
+#' Plots the specified comparison metrics by LIME
+#' tunning parameters
+#'
+#' @importFrom forcats fct_recode
+#' @importFrom tidyr gather
+#'
+#' @export plot_compare
+
+plot_compare <- function(explanations, metrics = NULL){
+
+  if (is.null(metrics)) metrics = c("ave_r2", "msee")
+
+  # Obtain the comparison metrics
+  metric_data <- compare_limes(explanations)
+
+  # Prepare the data for the plot
+  plot_data <- metric_data %>%
+    tidyr::gather(key = metric, value = value, ave_r2:msee) %>%
+    filter(metric %in% metrics) %>%
+    mutate(metric = factor(metric),
+           nbins = factor(nbins),
+           metric = forcats::fct_recode(
+             metric,
+             "Average R2" = "ave_r2",
+             "MSEE" = "msee"),
+           sim_method = forcats::fct_recode(
+             sim_method,
+             "Quantile Bins" = "quantile_bins",
+             "Equal Bins" = "equal_bins",
+             "Kernel Density" = "kernel_density",
+             "Normal Approx" = "normal_approx"))
+
+  # Create the comparison plot
+  ggplot(plot_data, aes(x = nbins, y = value, color = nbins)) +
+    geom_point() +
+    facet_grid(metric ~ sim_method, scales = "free", space = "free_x") +
+    theme_bw() +
+    labs(x = "Number of Bins",
+         y = "Metric Value")
+
+}

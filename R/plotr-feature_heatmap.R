@@ -1,3 +1,8 @@
+#' Heatmap of LIME Selected Features
+#'
+#' Creates a heatmap of the features selected by lime for each
+#' of the tunning parameters
+#'
 #' @importFrom checkmate expect_data_frame
 #'
 #' @export feature_heatmap
@@ -18,7 +23,13 @@ feature_heatmap <- function(explanations, feature_nums = NULL){
     ungroup() %>%
     mutate(nbins = factor(nbins),
            case = as.numeric(case),
-           feature = factor(feature))
+           feature = factor(feature),
+           sim_method = forcats::fct_recode(
+             sim_method,
+             "Quantile Bins" = "quantile_bins",
+             "Equal Bins" = "equal_bins",
+             "Kernel Density" = "kernel_density",
+             "Normal Approx" = "normal_approx"))
 
   # Subset the data to only keep the requested features
   if (!(is.null(feature_nums))) {
