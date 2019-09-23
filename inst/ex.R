@@ -34,6 +34,11 @@ compare_limes(iris_lime_explain$explain)
 plot_compare(iris_lime_explain$explain)
 plot_compare(iris_lime_explain$explain, metrics = "msee")
 
+iris_lime <- lime::lime(x = iris_train, model = model)
+iris_myexplain <- myexplain(x = iris_test, explainer = iris_lime,
+                            labels = "versicolor", n_features = 2)
+
+
 # Generate the data
 l1 <- 0
 u1 <- 20

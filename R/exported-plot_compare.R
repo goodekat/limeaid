@@ -3,6 +3,9 @@
 #' Plots the specified comparison metrics by LIME
 #' tunning parameters
 #'
+#' @param explanations explain dataframe from apply_lime
+#' @param metrics
+#'
 #' @importFrom forcats fct_recode
 #' @importFrom tidyr gather
 #'
@@ -10,6 +13,7 @@
 
 plot_compare <- function(explanations, metrics = NULL){
 
+  # If metrics is not specified
   if (is.null(metrics)) metrics = c("ave_r2", "msee")
 
   # Obtain the comparison metrics
@@ -37,7 +41,9 @@ plot_compare <- function(explanations, metrics = NULL){
     geom_point() +
     facet_grid(metric ~ sim_method, scales = "free", space = "free_x") +
     theme_bw() +
+    theme(legend.position = "none") +
     labs(x = "Number of Bins",
          y = "Metric Value")
 
 }
+
