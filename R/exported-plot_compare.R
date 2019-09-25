@@ -33,17 +33,24 @@ plot_compare <- function(explanations, metrics = NULL){
              sim_method,
              "Quantile Bins" = "quantile_bins",
              "Equal Bins" = "equal_bins",
-             "Kernel Density" = "kernel_density",
-             "Normal Approx" = "normal_approx"))
+             "Kernel" = "kernel_density",
+             "Normal" = "normal_approx"),
+           sim_method_plot = factor(ifelse(sim_method %in% c("Kernel", "Normal"),
+                                           "Density",
+                                           as.character(sim_method))),
+           nbins_plot = factor(ifelse(is.na(nbins),
+                                      as.character(sim_method),
+                                      as.character(nbins))))
 
   # Create the comparison plot
-  ggplot(plot_data, aes(x = nbins, y = value, color = nbins)) +
+  ggplot(plot_data, aes(x = nbins_plot, y = value, color = nbins_plot)) +
     geom_point() +
-    facet_grid(metric ~ sim_method, scales = "free", space = "free_x") +
+    facet_grid(metric ~ sim_method_plot, scales = "free", space = "free_x") +
     theme_bw() +
     theme(legend.position = "none") +
     labs(x = "Number of Bins",
-         y = "Metric Value")
+         y = "Metric Value",
+         color = "")
 
 }
 

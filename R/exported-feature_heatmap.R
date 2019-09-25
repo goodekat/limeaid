@@ -8,6 +8,8 @@
 #' @export feature_heatmap
 #'
 
+#explanations = sine_lime_explain$explain
+
 feature_heatmap <- function(explanations, feature_nums = NULL){
 
   # Checks
@@ -28,8 +30,14 @@ feature_heatmap <- function(explanations, feature_nums = NULL){
              sim_method,
              "Quantile Bins" = "quantile_bins",
              "Equal Bins" = "equal_bins",
-             "Kernel Density" = "kernel_density",
-             "Normal Approx" = "normal_approx"))
+             "Kernel" = "kernel_density",
+             "Normal" = "normal_approx"),
+           sim_method_plot = factor(ifelse(sim_method %in% c("Kernel", "Normal"),
+                                           "Density",
+                                           as.character(sim_method))),
+           nbins_plot = factor(ifelse(is.na(nbins),
+                                      as.character(sim_method),
+                                      as.character(nbins))))
 
   # Subset the data to only keep the requested features
   if (!(is.null(feature_nums))) {
@@ -44,9 +52,9 @@ feature_heatmap <- function(explanations, feature_nums = NULL){
   }
 
   # Create the heatmap
-  ggplot(heatmap_data, aes(x = nbins, y = case, fill = feature)) +
+  ggplot(heatmap_data, aes(x = nbins_plot, y = case, fill = feature)) +
     geom_tile() +
-    facet_grid(feature_num ~ sim_method, scales = "free", space = "free") +
+    facet_grid(feature_num ~ sim_method_plot, scales = "free", space = "free") +
     theme_bw() +
     labs(x = "Number of Bins",
          y = "Prediction Number",

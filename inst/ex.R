@@ -77,3 +77,6 @@ sine_lime_explain <- apply_lime(
   seed = 20190914)
 
 feature_heatmap(sine_lime_explain$explain)
+compare_limes(sine_lime_explain$explain)
+plot_compare(sine_lime_explain$explain)
+
