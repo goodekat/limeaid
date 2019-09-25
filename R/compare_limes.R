@@ -24,11 +24,12 @@ compare_limes <- function(explanations){
 
 
 # Would need the access the simulated data to compute this
-# locality_metric <- function(explanations){
+# iris_lime_explain$explain$perms_numerified[[1]]
+# fidelity_metric <- function(perms, weights){
 #
-#   p_complex <- explanations$label_prob
-#   p_explainer <- explanations$model_prediction
-#
+#   p_complex <-
+#   p_explainer <-
+#   pi
 #   L <- sum(pi * ((p_complex - p_explainer)^2))
 #   return(L)
 #

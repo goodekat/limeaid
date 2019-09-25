@@ -9,7 +9,7 @@ iris_lab <- iris[[5]][-(1:5)]
 # Create Random Forest model on iris data
 model <- train(iris_train, iris_lab, method = 'rf')
 
-iris_lime_explain <- apply_lime(train = iris_train,
+iris_lime_explain <- apply_limes(train = iris_train,
            test = iris_test,
            model = model,
            label = "virginica",
@@ -26,11 +26,12 @@ feature_heatmap(iris_lime_explain$explain, feature_nums = 1)
 feature_heatmap(iris_lime_explain$explain, feature_nums = 2)
 feature_heatmap(iris_lime_explain$explain, feature_nums = 1:2)
 feature_heatmap(iris_lime_explain)
-
 feature_heatmap(iris_lime_explain$explain) +
-  gretchenalbrecht::scale_fill_gretchenalbrecht(palette = "last_rays", discrete = TRUE)
+  gretchenalbrecht::scale_fill_gretchenalbrecht(
+    palette = "last_rays", discrete = TRUE)
 
 compare_limes(iris_lime_explain$explain)
+
 plot_compare(iris_lime_explain$explain)
 plot_compare(iris_lime_explain$explain, metrics = "msee")
 

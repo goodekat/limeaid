@@ -16,10 +16,11 @@ Imports:
   forcats,
   future,
   furrr,
-  lime,
   purrr,
   randomForest,
   tidyr
+Remotes: 
+  goodekat/lime
 Suggests: 
     caret,
     testthat (>= 2.1.0),
