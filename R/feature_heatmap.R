@@ -24,7 +24,7 @@ feature_heatmap <- function(explanations, feature_nums = NULL){
     mutate(feature_num = 1:n()) %>%
     ungroup() %>%
     mutate(nbins = factor(nbins),
-           case = as.numeric(case),
+           case = factor(case),
            feature = factor(feature),
            sim_method = forcats::fct_recode(
              sim_method,
@@ -58,7 +58,8 @@ feature_heatmap <- function(explanations, feature_nums = NULL){
     theme_bw() +
     labs(x = "Number of Bins",
          y = "Prediction Number",
-         fill = "Feature")
+         fill = "Feature") +
+    theme(legend.position = "none")
 
 }
 
