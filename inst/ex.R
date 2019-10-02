@@ -39,45 +39,28 @@ iris_lime <- lime::lime(x = iris_train, model = model)
 iris_myexplain <- myexplain(x = iris_test, explainer = iris_lime,
                             labels = "versicolor", n_features = 2)
 
-
-# Generate the data
-# Functions for rotating the data
-rot_x <- function(x, y, theta) (x * cos(theta)) - (y * sin(theta))
-rot_y <- function(x, y, theta) (x * sin(theta)) + (y * cos(theta))
-
-# Generate the data
-theta = -0.9
-min = -10
-max = 10
-set.seed(20190913)
-sine_data <- data.frame(x1 = runif(600, min, max),
-                  x2 = sort(runif(600, min, max)),
-                  x3 = rnorm(600)) %>%
-  mutate(x1new = rot_x(x1, x2, theta),
-         x2new = rot_y(x1, x2, theta),
-         y = ifelse(x2new > 5 * sin(x1new), "1", "0"))
-
 # Separte the data into training and testing parts
 rs <- sample(1:600, 500, replace = FALSE)
 sine_data_train <- sine_data[rs,]
 sine_data_test <- sine_data[-rs,]
 
 # Fit a random forest
-# rfsine <- randomForest(x = sine_data_train %>% select(x1, x2, x3),
-#                        y = sine_data_train %>% pull(y))
+library(randomForest)
+rfsine <- randomForest(x = sine_data_train %>% select(x1, x2, x3),
+                       y = sine_data_train %>% pull(y) %>% factor())
 rfsine <- train(x = sine_data_train %>% select(x1, x2, x3),
                 y = sine_data_train %>% pull(y),
                 method = "rf")
 
 # Obtain predictions on the training and testing data
 sine_data_train$rfpred <- predict(rfsine)
-sine_data_test$rfpred <- predict(rfsine, sine_data_test %>% select(x1, x2))
+sine_data_test$rfpred <- predict(rfsine, sine_data_test %>% select(x1, x2, x3))
 
 # Apply lime with various input options
 sine_lime_explain <- apply_limes(
   train = sine_data_train %>% select(x1, x2, x3),
   test = sine_data_test %>% select(x1, x2, x3),
-  model = rfsine,
+  model = lime::as_classifier(rfsine),
   label = "1",
   n_features = 2,
   sim_method = c('quantile_bins', 'equal_bins',
