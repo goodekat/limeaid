@@ -27,7 +27,7 @@
 #'               label = "1",
 #'               n_features = 2,
 #'               sim_method = c('quantile_bins', 'kernel_density'),
-#'               n_bins = c(3, 4),
+#'               nbins = c(3, 4),
 #'               seed = 20190914)
 #'
 #' # Plot heatmap of selected features across LIME implementations
@@ -43,13 +43,13 @@ feature_heatmap <- function(explanations, feature_nums = NULL){
 
   # Organize the explanation data for plotting
   heatmap_data <- explanations %>%
-    select(sim_method, n_bins, case, feature, feature_weight) %>%
+    select(sim_method, nbins, case, feature, feature_weight) %>%
     mutate(feature_magnitude = abs(feature_weight)) %>%
-    group_by(sim_method, n_bins, case) %>%
-    arrange(sim_method, n_bins, case, desc(feature_magnitude)) %>%
+    group_by(sim_method, nbins, case) %>%
+    arrange(sim_method, nbins, case, desc(feature_magnitude)) %>%
     mutate(feature_num = 1:n()) %>%
     ungroup() %>%
-    mutate(n_bins = factor(n_bins),
+    mutate(nbins = factor(nbins),
            case = factor(case),
            feature = factor(feature),
            sim_method =
@@ -60,9 +60,9 @@ feature_heatmap <- function(explanations, feature_nums = NULL){
            sim_method_plot = factor(ifelse(sim_method %in% c("Kernel", "Normal"),
                                            "Density",
                                            as.character(sim_method))),
-           n_bins_plot = factor(ifelse(is.na(n_bins),
+           nbins_plot = factor(ifelse(is.na(nbins),
                                       as.character(sim_method),
-                                      as.character(n_bins))))
+                                      as.character(nbins))))
 
   # Subset the data to only keep the requested features
   if (!(is.null(feature_nums))) {
@@ -77,7 +77,7 @@ feature_heatmap <- function(explanations, feature_nums = NULL){
   }
 
   # Create the heatmap
-  ggplot(heatmap_data, aes(x = n_bins_plot, y = case, fill = feature)) +
+  ggplot(heatmap_data, aes(x = nbins_plot, y = case, fill = feature)) +
     geom_tile() +
     facet_grid(feature_num ~ sim_method_plot, scales = "free", space = "free") +
     theme_bw() +

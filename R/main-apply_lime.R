@@ -8,7 +8,7 @@
 #' @param sim_method Vector of methods to use for creating the simulated
 #'        data. Options are 'quantile_bins', 'equal_bins',
 #'        'kernel_density', and 'normal_approx'.
-#' @param n_bins Vector of number of bins to use with bin based
+#' @param nbins Vector of number of bins to use with bin based
 #'        simulation methods.
 #' @param label Response category to use in the explanations. Current
 #'        implementation only accepts 1 label.
@@ -51,17 +51,17 @@
 #'               label = "1",
 #'               n_features = 2,
 #'               sim_method = c('quantile_bins', 'kernel_density'),
-#'               n_bins = c(3, 4),
+#'               nbins = c(3, 4),
 #'               seed = 20190914)
 
-apply_lime <- function(train, test, model, sim_method, n_bins,
+apply_lime <- function(train, test, model, sim_method, nbins,
                        label, n_features, n_permutations = 5000,
                        feature_select = "auto", dist_fun = "gower",
                        kernel_width = NULL, gower_pow = 1,
                        nreps = 1, seed = NULL){
 
   # Put the input options into a list
-  inputs <- organize_inputs(sim_method, n_bins) # helper
+  inputs <- organize_inputs(sim_method, nbins) # helper
 
   # Tell R to run the upcoming code in parallel
   future::plan(future::multisession)
@@ -95,7 +95,7 @@ apply_lime <- function(train, test, model, sim_method, n_bins,
   # Name the items in the lime list
   names(results$lime) <- purrr::map_chr(1:length(results$lime), function(case)
       sprintf("case: %s %s",
-              ifelse(sim_method[case] %in% c("quantile_bins", "equal_bins"), n_bins, ""),
+              ifelse(sim_method[case] %in% c("quantile_bins", "equal_bins"), nbins, ""),
               sim_method[case]))
 
   # Return the results from lime

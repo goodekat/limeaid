@@ -38,7 +38,7 @@ sine_lime_explain <-
               label = "1",
               n_features = 2,
               sim_method = c('quantile_bins', 'kernel_density'),
-              n_bins = c(3, 4),
+              nbins = c(3, 4),
               seed = 20190914)
 
 # Compute metrics to compare lime implementations

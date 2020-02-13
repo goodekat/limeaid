@@ -4,7 +4,7 @@
 \alias{apply_lime}
 \title{Apply Different Implementations of LIME}
 \usage{
-apply_lime(train, test, model, sim_method, n_bins, label, n_features,
+apply_lime(train, test, model, sim_method, nbins, label, n_features,
   n_permutations = 5000, feature_select = "auto", dist_fun = "gower",
   kernel_width = NULL, gower_pow = 1, nreps = 1, seed = NULL)
 }
@@ -19,7 +19,7 @@ apply_lime(train, test, model, sim_method, n_bins, label, n_features,
 data. Options are 'quantile_bins', 'equal_bins',
 'kernel_density', and 'normal_approx'.}
 
-\item{n_bins}{Vector of number of bins to use with bin based
+\item{nbins}{Vector of number of bins to use with bin based
 simulation methods.}
 
 \item{label}{Response category to use in the explanations. Current
@@ -66,6 +66,6 @@ sine_lime_explain <-
               label = "1",
               n_features = 2,
               sim_method = c('quantile_bins', 'kernel_density'),
-              n_bins = c(3, 4),
+              nbins = c(3, 4),
               seed = 20190914)
 }

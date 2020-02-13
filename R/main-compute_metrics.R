@@ -30,7 +30,7 @@
 #'               label = "1",
 #'               n_features = 2,
 #'               sim_method = c('quantile_bins', 'kernel_density'),
-#'               n_bins = c(3, 4),
+#'               nbins = c(3, 4),
 #'               seed = 20190914)
 #'
 #' # Compute metrics to compare lime implementations
@@ -49,14 +49,14 @@ compute_metrics <- function(explanations, metrics = "all"){
 
   # Compute the metrics
   res <- explanations %>%
-    group_by(implementation, sim_method, n_bins) %>%
+    group_by(implementation, sim_method, nbins) %>%
     summarise(ave_r2 = mean(model_r2),
               msee = sum((label_prob - model_prediction)^2) / sqrt(n() - 1)) %>%
     ungroup() %>%
     as.data.frame()
 
   # Return a dataframe with the desired metrics
-  return(res %>% select(implementation, sim_method, n_bins, metrics))
+  return(res %>% select(implementation, sim_method, nbins, metrics))
 
 }
 

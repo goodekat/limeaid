@@ -23,11 +23,11 @@ iris_lime_explain <- apply_lime(train = iris_train,
                                                'equal_bins',
                                                'kernel_density',
                                                'normal_approx'),
-                                n_bins = 2:3,
+                                nbins = 2:3,
                                 seed = 20190914)
 
-# Test that the output has not changed
-test_that("apply_lime-output", {
+# Test that the output has the correct structure
+test_that("apply_lime", {
 
   testthat::expect_type(iris_lime_explain$lime, "list")
   testthat::expect_type(iris_lime_explain$explain, "list")

@@ -31,7 +31,7 @@
 #'               label = "1",
 #'               n_features = 2,
 #'               sim_method = c('quantile_bins', 'kernel_density'),
-#'               n_bins = c(3, 4),
+#'               nbins = c(3, 4),
 #'               seed = 20190914)
 #'
 #' # Plot metrics to compare LIME implementations
@@ -56,7 +56,7 @@ metric_plot <- function(explanations, metrics = 'all'){
     tidyr::pivot_longer(names_to = "metric", values_to = "value", ave_r2:msee) %>%
     filter(metric %in% metrics) %>%
     mutate(metric = factor(metric),
-           n_bins = factor(n_bins),
+           nbins = factor(nbins),
            metric = ifelse(metric == "ave_r2", "Average R2", "MSEE"),
            sim_method =
              ifelse(sim_method == "quantile_bins", "Quantile Bins",
@@ -66,12 +66,12 @@ metric_plot <- function(explanations, metrics = 'all'){
            sim_method_plot = factor(ifelse(sim_method %in% c("Kernel", "Normal"),
                                            "Density",
                                            as.character(sim_method))),
-           n_bins_plot = factor(ifelse(is.na(n_bins),
+           nbins_plot = factor(ifelse(is.na(nbins),
                                       as.character(sim_method),
-                                      as.character(n_bins))))
+                                      as.character(nbins))))
 
   # Create the comparison plot
-  ggplot(plot_data, aes(x = n_bins_plot, y = value, color = n_bins_plot)) +
+  ggplot(plot_data, aes(x = nbins_plot, y = value, color = nbins_plot)) +
     geom_point() +
     facet_grid(metric ~ sim_method_plot, scales = "free", space = "free_x") +
     theme_bw() +

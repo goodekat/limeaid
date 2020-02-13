@@ -1,6 +1,6 @@
 # Function for applying the lime and explain functions for
 # one set of input options
-lime_explain <- function(bin_continuous, quantile_bins, n_bins,
+lime_explain <- function(bin_continuous, quantile_bins, nbins,
                          use_density, train, test, model, label,
                          n_features, feature_select, seed,
                          n_permutations, dist_fun,
@@ -13,7 +13,7 @@ lime_explain <- function(bin_continuous, quantile_bins, n_bins,
   lime <- lime::lime(x = train,
                      model = model,
                      bin_continuous = bin_continuous,
-                     n_bins = n_bins,
+                     n_bins = nbins,
                      quantile_bins = quantile_bins,
                      use_density = use_density)
 
@@ -30,8 +30,8 @@ lime_explain <- function(bin_continuous, quantile_bins, n_bins,
     mutate(sim_method = inputs2method(bin_continuous = bin_continuous,
                                       quantile_bins = quantile_bins,
                                       use_density = use_density),
-           n_bins = ifelse(sim_method %in% c("quantile_bins", "equal_bins"), n_bins, NA)) %>%
-    select(sim_method, n_bins, everything())
+           nbins = ifelse(sim_method %in% c("quantile_bins", "equal_bins"), nbins, NA)) %>%
+    select(sim_method, nbins, everything())
 
   return(list(lime = lime, explain = explain))
 
