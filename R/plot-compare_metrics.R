@@ -6,12 +6,11 @@
 #' @param explanations explain dataframe from apply_lime
 #' @param metrics
 #'
-#' @importFrom forcats fct_recode
 #' @importFrom tidyr gather
 #'
-#' @export plot_compare
+#' @export compare_metrics
 
-plot_compare <- function(explanations, metrics = NULL){
+compare_metrics <- function(explanations, metrics = NULL){
 
   # If metrics is not specified
   if (is.null(metrics)) metrics = c("ave_r2", "msee")
@@ -21,14 +20,11 @@ plot_compare <- function(explanations, metrics = NULL){
 
   # Prepare the data for the plot
   plot_data <- metric_data %>%
-    tidyr::gather(key = metric, value = value, ave_r2:msee) %>%
+    tidyr::pivot_longer(names_to = "metric", values_to = "value", ave_r2:msee) %>%
     filter(metric %in% metrics) %>%
     mutate(metric = factor(metric),
            nbins = factor(nbins),
-           metric = forcats::fct_recode(
-             metric,
-             "Average R2" = "ave_r2",
-             "MSEE" = "msee"),
+           metric = ifelse(metric == "ave_r2", "Average R2", "MSEE"),
            sim_method =
              ifelse(sim_method == "quantile_bins", "Quantile Bins",
                     ifelse(sim_method == "equal_bins", "Equal Bins",

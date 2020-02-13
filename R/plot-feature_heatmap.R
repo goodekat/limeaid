@@ -7,7 +7,6 @@
 #' @param feature_nums accepts a vector of integer values from 1 to \code{nfeatures} specified in \code{apply_lime} to specify which features selected by LIME should be included in the plot
 #'
 #' @importFrom checkmate expect_data_frame
-#' @importFrom forcats fct_recode
 #' @importFrom ggplot2 aes facet_grid geom_tile ggplot labs theme theme_bw
 #'
 #' @export feature_heatmap

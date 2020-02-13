@@ -13,7 +13,6 @@ Imports:
   assertthat,
   checkmate,
   dplyr,
-  forcats,
   future,
   furrr,
   purrr,
