@@ -29,12 +29,11 @@ plot_compare <- function(explanations, metrics = NULL){
              metric,
              "Average R2" = "ave_r2",
              "MSEE" = "msee"),
-           sim_method = forcats::fct_recode(
-             sim_method,
-             "Quantile Bins" = "quantile_bins",
-             "Equal Bins" = "equal_bins",
-             "Kernel" = "kernel_density",
-             "Normal" = "normal_approx"),
+           sim_method =
+             ifelse(sim_method == "quantile_bins", "Quantile Bins",
+                    ifelse(sim_method == "equal_bins", "Equal Bins",
+                           ifelse(sim_method == "kernel_density", "Kernel",
+                                  "Normal"))) %>% factor(),
            sim_method_plot = factor(ifelse(sim_method %in% c("Kernel", "Normal"),
                                            "Density",
                                            as.character(sim_method))),
