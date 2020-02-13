@@ -16,7 +16,7 @@ set.seed(20190913)
 model <- randomForest(iris_train, iris_lab)
 
 # Run apply_lime on the iris data
-iris_lime_explain <- apply_lime(train = iris_train,
+iris_lime_explain <- apply_limes(train = iris_train,
                                 test = iris_test,
                                 model = lime::as_classifier(model),
                                 label = "virginica",
@@ -55,7 +55,7 @@ sine_data_test$rfpred <- predict(rfsine,
                                  sine_data_test %>% select(x1, x2, x3))
 
 # Apply lime with various input options
-sine_lime_explain <- apply_lime(
+sine_lime_explain <- apply_limes(
   train = sine_data_train %>% select(x1, x2, x3),
   test = sine_data_test %>% select(x1, x2, x3),
   model = rfsine,

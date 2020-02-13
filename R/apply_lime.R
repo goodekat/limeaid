@@ -2,7 +2,7 @@
 #'
 #' Applies LIME with the specified tunning parameter options
 #'
-#' @param train Dataframe of training data featues
+#' @param train Dataframe of training data features
 #' @param test Dataframe of testing data features
 #' @param model Complex model to be explained
 #' @param label Vector of response category or categories to use in the explanations
@@ -18,66 +18,78 @@
 #' @param nreps Number of times to apply LIME for each set of input options
 #' @param seed Seed number if specifying a seed is desired
 #'
-#' @importFrom dplyr bind_cols everything mutate select %>%
+#' @importFrom dplyr arrange bind_cols everything filter group_by mutate n select ungroup %>%
 #' @importFrom future multisession plan
 #' @importFrom furrr future_pmap
 #' @importFrom lime as_classifier lime explain
 #' @importFrom purrr map map_df
 #'
-#' @export apply_limes
+#' @export apply_lime
 #'
 #' @examples
 #'
-#' library(caret)
+#' # Create Random Forest model on the sine data
+#' set.seed(20191003)
+#' rfsine <- caret::train(x = sine_data_train[c("x1", "x2", "x3")],
+#'                        y = sine_data_train$y,
+#'                        method = "rf")
 #'
-#' # Split up the data set
-#' iris_test <- iris[1:5, 1:4]
-#' iris_train <- iris[-(1:5), 1:4]
-#' iris_lab <- iris[[5]][-(1:5)]
-#'
-#' # Create Random Forest model on iris data
-#' model <- train(iris_train, iris_lab, method = 'rf')
-#'
-#' iris_lime_explain <- apply_limes(train = iris_train,
-#'                                 test = iris_test,
-#'                                 model = model,
-#'                                 label = "virginica",
-#'                                 n_features = 2,
-#'                                 sim_method = c('quantile_bins', 'equal_bins', 'kernel_density', 'normal_approx'),
-#'                                 nbins = 2,
-#'                                 seed = 20190914)
-
+#' # Apply lime
+#' sine_lime_explain <-
+#'    apply_lime(train = sine_data_train[c("x1", "x2", "x3")],
+#'               test = sine_data_test[c("x1", "x2", "x3")],
+#'               model = rfsine,
+#'               label = "1",
+#'               n_features = 2,
+#'               sim_method = c('quantile_bins', 'kernel_density'),
+#'               nbins = 3,
+#'               seed = 20190914)
 
 ## Main Function ----------------------------------------------------
 
-apply_limes <- function(train, test, model, label, n_features,
-                       sim_method, nbins, feature_select = "auto",
+# Helper functions can be found below in this script
+
+# train = sine_data_train %>% select(x1, x2, x3)
+# test = sine_data_test %>% select(x1, x2, x3)
+# model = rfsine
+# label = "1"
+# n_features = 2
+# sim_method = c('quantile_bins', 'kernel_density')
+# nbins = 3
+# seed = 20190914
+
+apply_lime <- function(train, test, model, label, n_features,
+                       sim_method, nbins, n_permutations = 5000,
+                       feature_select = "auto",
                        dist_fun = "gower", kernel_width = NULL,
                        gower_pow = 1, nreps = 1, seed = NULL){
 
-  # Set a seed if requested
-  if (!is.null(seed)) set.seed(seed)
-
   # Put the input options into a list
-  inputs <- organize_inputs(sim_method, nbins)
+  inputs <- organize_inputs(sim_method, nbins) # helper
 
   # Tell R to run the upcoming code in parallel
   future::plan(future::multisession)
 
   # Apply the lime and explain functions for all specified inputs
   results <- furrr::future_pmap(.l = inputs,
-                                .f = lime_explain, # lime_explain is a helper function in limeaid
+                                .f = lime_explain, # helper
                                 train = train,
                                 test = test,
                                 model = model,
                                 label = label,
-                                n_features = n_features)
+                                n_features = n_features,
+                                n_permutations =  n_permutations,
+                                feature_select = feature_select,
+                                dist_fun = "gower",
+                                kernel_width = NULL,
+                                gower_pow = 1,
+                                seed = seed)
 
   # Separate the lime and explain function results
-  results <- list(lime = map(results, function(list) list$lime),
-                  explain = map_df(results,
-                                   function(list) list$explain,
-                                   .id = "implementation"))
+  results <- list(lime = purrr::map(results, function(list) list$lime),
+                  explain = purrr::map_df(results,
+                                          function(list) list$explain,
+                                          .id = "implementation"))
 
   # Specify the order of the factors of sim_method
   sim_method_levels <- sim_method
@@ -127,64 +139,6 @@ organize_inputs <- function(sim_method, nbins){
 
 }
 
-# Helper function for applying the lime and explain functions for
-# one set of input options
-lime_explain <- function(bin_continuous, quantile_bins, nbins,
-                         use_density, train, test, model, label,
-                         n_features){
-
-  # Apply the lime function
-  lime <- lime::lime(x = train,
-                     model = model,
-                     bin_continuous = bin_continuous,
-                     n_bins = nbins,
-                     quantile_bins = quantile_bins,
-                     use_density = use_density)
-
-  # Apply the explain function and add some additional variables
-  explain <- lime::explain(x = test,
-                            explainer = lime,
-                            labels = label,
-                            n_features = n_features) %>%
-    mutate(sim_method = inputs2method(bin_continuous = bin_continuous,
-                                      quantile_bins = quantile_bins,
-                                      use_density = use_density),
-           nbins = ifelse(sim_method %in% c("quantile_bins", "equal_bins"), nbins, NA)) %>%
-    select(sim_method, nbins, everything())
-
-  return(list(lime = lime, explain = explain))
-
-}
-
-join_test_explain <- function(test, explain){
-
-}
-
-# Given the LIME input values for simulation return the concise "simulation method"
-inputs2method <- function(bin_continuous, quantile_bins, use_density){
-
-  # Bin cases
-  if (bin_continuous == TRUE) {
-    if (quantile_bins == TRUE) {
-      sim_method = "quantile_bins"
-    } else if (quantile_bins == FALSE) {
-      sim_method = "equal_bins"
-    }
-
-    # Density cases
-  } else if (bin_continuous == FALSE){
-    if (use_density == TRUE) {
-      sim_method = "kernel_density"
-    } else if (use_density == FALSE) {
-      sim_method = "normal_approx"
-    }
-  }
-
-  # Return the simulation method
-  return(sim_method)
-
-}
-
 # Given a "simulation method" return the LIME input values for simulation
 method2inputs <- function(sim_method){
 
@@ -216,6 +170,70 @@ method2inputs <- function(sim_method){
 
   # Return the input parameters in a dataframe
   return(data.frame(bin_continuous, quantile_bins, use_density))
+
+}
+
+# Helper function for applying the lime and explain functions for
+# one set of input options
+lime_explain <- function(bin_continuous, quantile_bins, nbins,
+                         use_density, train, test, model, label,
+                         n_features, feature_select, seed,
+                         n_permutations, dist_fun,
+                         kernel_width, gower_pow){
+
+  # Set a seed if requested
+  if (!is.null(seed)) set.seed(seed)
+
+  # Apply the lime function
+  lime <- lime::lime(x = train,
+                     model = model,
+                     bin_continuous = bin_continuous,
+                     n_bins = nbins,
+                     quantile_bins = quantile_bins,
+                     use_density = use_density)
+
+  # Apply the explain function and add some additional variables
+  explain <- lime::explain(x = test,
+                           explainer = lime,
+                           labels = label,
+                           n_features = n_features,
+                           n_permutations =  n_permutations,
+                           feature_select = feature_select,
+                           dist_fun = dist_fun,
+                           kernel_width = kernel_width,
+                           gower_pow = gower_pow) %>%
+    mutate(sim_method = inputs2method(bin_continuous = bin_continuous,
+                                      quantile_bins = quantile_bins,
+                                      use_density = use_density),
+           nbins = ifelse(sim_method %in% c("quantile_bins", "equal_bins"), nbins, NA)) %>%
+    select(sim_method, nbins, everything())
+
+  return(list(lime = lime, explain = explain))
+
+}
+
+# Given the LIME input values for simulation return the concise "simulation method"
+inputs2method <- function(bin_continuous, quantile_bins, use_density){
+
+  # Bin cases
+  if (bin_continuous == TRUE) {
+    if (quantile_bins == TRUE) {
+      sim_method = "quantile_bins"
+    } else if (quantile_bins == FALSE) {
+      sim_method = "equal_bins"
+    }
+
+    # Density cases
+  } else if (bin_continuous == FALSE){
+    if (use_density == TRUE) {
+      sim_method = "kernel_density"
+    } else if (use_density == FALSE) {
+      sim_method = "normal_approx"
+    }
+  }
+
+  # Return the simulation method
+  return(sim_method)
 
 }
 

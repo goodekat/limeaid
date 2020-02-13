@@ -6,6 +6,11 @@
 \usage{
 feature_heatmap(explanations, feature_nums = NULL)
 }
+\arguments{
+\item{explanations}{explain data frame from the apply_lime list}
+
+\item{feature_nums}{accepts a vector of integer values from 1 to \code{nfeatures} specified in \code{apply_lime} to specify which features selected by LIME should be included in the plot}
+}
 \description{
 Creates a heatmap of the features selected by lime for each
 of the tunning parameters

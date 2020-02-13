@@ -3,12 +3,15 @@
 #' Creates a heatmap of the features selected by lime for each
 #' of the tunning parameters
 #'
+#' @param explanations explain data frame from the apply_lime list
+#' @param feature_nums accepts a vector of integer values from 1 to \code{nfeatures} specified in \code{apply_lime} to specify which features selected by LIME should be included in the plot
+#'
 #' @importFrom checkmate expect_data_frame
+#' @importFrom forcats fct_recode
+#' @importFrom ggplot2 aes facet_grid geom_tile ggplot labs theme theme_bw
 #'
 #' @export feature_heatmap
 #'
-
-#explanations = sine_lime_explain$explain
 
 feature_heatmap <- function(explanations, feature_nums = NULL){
 
@@ -26,12 +29,11 @@ feature_heatmap <- function(explanations, feature_nums = NULL){
     mutate(nbins = factor(nbins),
            case = factor(case),
            feature = factor(feature),
-           sim_method = forcats::fct_recode(
-             sim_method,
-             "Quantile Bins" = "quantile_bins",
-             "Equal Bins" = "equal_bins",
-             "Kernel" = "kernel_density",
-             "Normal" = "normal_approx"),
+           sim_method =
+             ifelse(sim_method == "quantile_bins", "Quantile Bins",
+                    ifelse(sim_method == "equal_bins", "Equal Bins",
+                           ifelse(sim_method == "kernel_density", "Kernel",
+                                  "Normal"))) %>% factor(),
            sim_method_plot = factor(ifelse(sim_method %in% c("Kernel", "Normal"),
                                            "Density",
                                            as.character(sim_method))),
@@ -58,8 +60,7 @@ feature_heatmap <- function(explanations, feature_nums = NULL){
     theme_bw() +
     labs(x = "Number of Bins",
          y = "Prediction Number",
-         fill = "Feature") +
-    theme(legend.position = "none")
+         fill = "Feature")
 
 }
 
