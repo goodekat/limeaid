@@ -1,7 +1,7 @@
 Package: limeaid
 Type: Package
 Title: Diagnose LIME Explanations
-Version: 0.1.0
+Version: 0.0.1
 Author: Katherine Goode
 Maintainer: Katherine Goode <kgoode@iastate.edu>
 Description: Assess explanations produced by LIME using diagnostic plots
