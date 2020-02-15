@@ -11,7 +11,14 @@
 #' \itemize{
 #'   \item \code{ave_r2}: Average explainer model R2 value computed over all explanations in the test set.
 #'   \item \code{msee}: Mean square explanation error computed over all explanations in the test set.
+#'   \item \code{ave_fidelity}: Average fidelity metric (Ribeiro et. al. 2016) computed over all explanations in the test set.
 #' }
+#'
+#' @references Ribeiro, M. T., S. Singh, and C. Guestrin, 2016:
+#'   "why should I trust you?": Explaining the predictions of any classifier.
+#'   Proceedings of the 22nd ACM SIGKDD Inter- national Conference on
+#'   Knowledge Discovery and Data Mining, San Francisco, CA, USA, August
+#'   13-17, 2016, 1135–1144.
 #'
 #' @export compute_metrics
 #'
@@ -45,13 +52,20 @@ compute_metrics <- function(explanations, metrics = "all"){
   checkmate::expect_data_frame(explanations)
 
   # If metrics is not specified
-  if (metrics == "all") metrics = c("ave_r2", "msee")
+  if ("all" %in% metrics) metrics = c("ave_r2", "msee", "ave_fidelity")
+
+  # Compute fidelity if requested
+  if ("ave_fidelity" %in% metrics) {
+    explanations$fidelity <- compute_fidelities(explanations)
+  }
 
   # Compute the metrics
   res <- explanations %>%
     group_by(implementation, sim_method, nbins) %>%
     summarise(ave_r2 = mean(model_r2),
-              msee = sum((label_prob - model_prediction)^2) / sqrt(n() - 1)) %>%
+              msee = sum((label_prob - model_prediction)^2) /
+                sqrt(n() - 1),
+              ave_fidelity = mean(fidelity)) %>%
     ungroup() %>%
     as.data.frame()
 
@@ -59,19 +73,6 @@ compute_metrics <- function(explanations, metrics = "all"){
   return(res %>% select(implementation, sim_method, nbins, metrics))
 
 }
-
-
-# Would need the access the simulated data to compute this
-# iris_lime_explain$explain$perms_numerified[[1]]
-# fidelity_metric <- function(perms, weights){
-#
-#   p_complex <-
-#   p_explainer <-
-#   pi
-#   L <- sum(pi * ((p_complex - p_explainer)^2))
-#   return(L)
-#
-# }
 
 
 

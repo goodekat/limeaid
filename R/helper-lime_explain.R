@@ -3,8 +3,8 @@
 lime_explain <- function(bin_continuous, quantile_bins, nbins,
                          use_density, train, test, model, label,
                          n_features, feature_select, seed,
-                         n_permutations, dist_fun,
-                         kernel_width, gower_pow){
+                         n_permutations, dist_fun, kernel_width,
+                         gower_pow, all_fs, label_fs){
 
   # Set a seed if requested
   if (!is.null(seed)) set.seed(seed)
@@ -26,7 +26,9 @@ lime_explain <- function(bin_continuous, quantile_bins, nbins,
                            feature_select = feature_select,
                            dist_fun = dist_fun,
                            kernel_width = kernel_width,
-                           gower_pow = gower_pow) %>%
+                           gower_pow = gower_pow,
+                           all_fs = all_fs,
+                           label_fs = label_fs) %>%
     mutate(sim_method = inputs2method(bin_continuous = bin_continuous,
                                       quantile_bins = quantile_bins,
                                       use_density = use_density),

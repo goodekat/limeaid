@@ -24,15 +24,19 @@
 #' @param kernel_width Kernel width to use if \code{dist_fun} is not
 #'        'gower'.
 #' @param gower_pow Power to use when computing the Gower distance.
-#' @param nreps Number of times to apply LIME for each set of input
-#'        options.
+#' @param all_fs Indicates whether all feature selection methods
+#'        should be used. Must be used with 'label_fs' option to
+#'        specify the label to use for feature selection. (Only one
+#'        label is allowe for now.)
+#' @param label_fs The response label to use when all feature
+#'        selection methods are implemented.
 #' @param seed Number to be used as a seed (if desired).
 #'
 #' @importFrom dplyr arrange bind_cols everything filter group_by mutate n select summarise ungroup %>%
 #' @importFrom future multisession plan
 #' @importFrom furrr future_pmap
 #' @importFrom lime as_classifier lime explain
-#' @importFrom purrr map map_df
+#' @importFrom purrr map map_df pmap_dbl
 #'
 #' @export apply_lime
 #'
@@ -58,7 +62,8 @@ apply_lime <- function(train, test, model, sim_method, nbins,
                        label, n_features, n_permutations = 5000,
                        feature_select = "auto", dist_fun = "gower",
                        kernel_width = NULL, gower_pow = 1,
-                       nreps = 1, seed = NULL){
+                       all_fs = FALSE, label_fs = NULL, #nreps = 1,
+                       seed = NULL){
 
   # Put the input options into a list
   inputs <- organize_inputs(sim_method, nbins) # helper
@@ -77,8 +82,10 @@ apply_lime <- function(train, test, model, sim_method, nbins,
                                 n_permutations = n_permutations,
                                 feature_select = feature_select,
                                 dist_fun = "gower",
-                                kernel_width = NULL,
+                                kernel_width = kernel_width,
                                 gower_pow = 1,
+                                all_fs = all_fs,
+                                label_fs = label_fs,
                                 seed = seed)
 
   # Separate the lime and explain function results

@@ -6,7 +6,8 @@
 \usage{
 apply_lime(train, test, model, sim_method, nbins, label, n_features,
   n_permutations = 5000, feature_select = "auto", dist_fun = "gower",
-  kernel_width = NULL, gower_pow = 1, nreps = 1, seed = NULL)
+  kernel_width = NULL, gower_pow = 1, all_fs = FALSE,
+  label_fs = NULL, seed = NULL)
 }
 \arguments{
 \item{train}{Dataframe of training data features.}
@@ -43,8 +44,13 @@ the simulated data. Default is 'gower'. Otherwise,
 
 \item{gower_pow}{Power to use when computing the Gower distance.}
 
-\item{nreps}{Number of times to apply LIME for each set of input
-options.}
+\item{all_fs}{Indicates whether all feature selection methods
+should be used. Must be used with 'label_fs' option to
+specify the label to use for feature selection. (Only one
+label is allowe for now.)}
+
+\item{label_fs}{The response label to use when all feature
+selection methods are implemented.}
 
 \item{seed}{Number to be used as a seed (if desired).}
 }

@@ -21,6 +21,7 @@ The metrics available are listed below.
 \itemize{
   \item \code{ave_r2}: Average explainer model R2 value computed over all explanations in the test set.
   \item \code{msee}: Mean square explanation error computed over all explanations in the test set.
+  \item \code{ave_fidelity}: Average fidelity metric (Ribeiro et. al. 2016) computed over all explanations in the test set.
 }
 }
 \examples{
@@ -46,4 +47,11 @@ compute_metrics(sine_lime_explain$explain)
 
 # Return a table with only the MSEE values
 compute_metrics(sine_lime_explain$explain, metrics = "msee")
+}
+\references{
+Ribeiro, M. T., S. Singh, and C. Guestrin, 2016:
+  "why should I trust you?": Explaining the predictions of any classifier.
+  Proceedings of the 22nd ACM SIGKDD Inter- national Conference on
+  Knowledge Discovery and Data Mining, San Francisco, CA, USA, August
+  13-17, 2016, 1135–1144.
 }

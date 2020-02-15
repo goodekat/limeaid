@@ -10,7 +10,14 @@
 #' \itemize{
 #'   \item \code{ave_r2}: Average explainer model R2 value computed over all explanations in the test set.
 #'   \item \code{msee}: Mean square explanation error computed over all explanations in the test set.
+#'   \item \code{ave_fidelity}: Average fidelity metric (Ribeiro et. al. 2016) computed over all explanations in the test set.
 #' }
+#'
+#' @references Ribeiro, M. T., S. Singh, and C. Guestrin, 2016:
+#'   "why should I trust you?": Explaining the predictions of any classifier.
+#'   Proceedings of the 22nd ACM SIGKDD Inter- national Conference on
+#'   Knowledge Discovery and Data Mining, San Francisco, CA, USA, August
+#'   13-17, 2016, 1135–1144.
 #'
 #' @importFrom tidyr gather
 #'
@@ -38,7 +45,7 @@
 #' metric_plot(sine_lime_explain$explain)
 #'
 #' # Return a plot with only the MSEE values
-#' compute_metrics(sine_lime_explain$explain, metrics = "msee")
+#' metric_plot(sine_lime_explain$explain, metrics = "msee")
 
 metric_plot <- function(explanations, metrics = 'all'){
 
@@ -46,18 +53,20 @@ metric_plot <- function(explanations, metrics = 'all'){
   checkmate::expect_data_frame(explanations)
 
   # If metrics is not specified
-  if (metrics == "all") metrics = c("ave_r2", "msee")
+  if ("all" %in% metrics) metrics = c("ave_r2", "msee", "ave_fidelity")
 
   # Obtain the comparison metrics
   metric_data <- compute_metrics(explanations)
 
   # Prepare the data for the plot
   plot_data <- metric_data %>%
-    tidyr::pivot_longer(names_to = "metric", values_to = "value", ave_r2:msee) %>%
+    tidyr::pivot_longer(names_to = "metric", values_to = "value", ave_r2:ave_fidelity) %>%
     filter(metric %in% metrics) %>%
     mutate(metric = factor(metric),
            nbins = factor(nbins),
-           metric = ifelse(metric == "ave_r2", "Average R2", "MSEE"),
+           metric = ifelse(metric == "ave_r2", "Average R2",
+                    ifelse(metric == "msee", "MSEE",
+                           "Average Fidelity")),
            sim_method =
              ifelse(sim_method == "quantile_bins", "Quantile Bins",
                     ifelse(sim_method == "equal_bins", "Equal Bins",
