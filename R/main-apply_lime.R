@@ -35,7 +35,7 @@
 #' @importFrom dplyr arrange bind_cols everything filter group_by mutate n select summarise ungroup %>%
 #' @importFrom future multisession plan
 #' @importFrom furrr future_pmap
-#' @importFrom lime as_classifier lime explain
+#' @importFrom lime lime explain
 #' @importFrom purrr map map_df pmap_dbl
 #'
 #' @export apply_lime
