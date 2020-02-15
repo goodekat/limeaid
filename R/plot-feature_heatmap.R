@@ -7,7 +7,7 @@
 #' @param explanations Explain dataframe from the list returned by apply_lime.
 #' @param feature_nums A vector of integer values from 1 to \code{nfeatures} (specified in \code{apply_lime}) to determine which features selected by LIME should be included in the plot.
 #'
-#' @importFrom checkmate expect_data_frame
+#' @importFrom checkmate expect_data_frame expect_character
 #' @importFrom ggplot2 aes facet_grid geom_tile ggplot labs theme theme_bw
 #'
 #' @export feature_heatmap
