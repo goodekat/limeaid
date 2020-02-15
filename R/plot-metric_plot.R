@@ -20,6 +20,7 @@
 #'   13-17, 2016, 1135–1144.
 #'
 #' @importFrom tidyr gather
+#' @importFrom scales seq_gradient_pal
 #'
 #' @export metric_plot
 #'

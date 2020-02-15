@@ -15,8 +15,10 @@ Imports:
   dplyr,
   future,
   furrr,
+  ggplot2,
   purrr,
   randomForest,
+  scales,
   tidyr
 Remotes: 
   goodekat/lime
