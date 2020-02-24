@@ -17,7 +17,6 @@ Imports:
   furrr,
   ggplot2,
   purrr,
-  randomForest,
   scales,
   tidyr
 Remotes: 

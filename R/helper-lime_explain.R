@@ -1,5 +1,6 @@
 # Function for applying the lime and explain functions for
 # one set of input options
+
 lime_explain <- function(bin_continuous, quantile_bins, nbins,
                          use_density, train, test, model, label,
                          n_features, feature_select, seed,

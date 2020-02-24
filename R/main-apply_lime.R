@@ -36,7 +36,7 @@
 #' @importFrom future multisession plan
 #' @importFrom furrr future_pmap
 #' @importFrom lime lime explain
-#' @importFrom purrr map map_df pmap_dbl
+#' @importFrom purrr map map_df pmap pmap_dbl
 #'
 #' @export apply_lime
 #'
@@ -69,10 +69,10 @@ apply_lime <- function(train, test, model, sim_method, nbins,
   inputs <- organize_inputs(sim_method, nbins) # helper
 
   # Tell R to run the upcoming code in parallel
-  future::plan(future::multisession)
+  #future::plan(future::multisession)
 
   # Apply the lime and explain functions for all specified inputs
-  results <- furrr::future_pmap(.l = inputs,
+  results <- purrr::pmap(.l = inputs,
                                 .f = lime_explain, # helper
                                 train = train,
                                 test = test,
