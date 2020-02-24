@@ -22,6 +22,6 @@ Imports:
 Remotes: 
   goodekat/lime
 Suggests: 
-    caret,
-    testthat (>= 2.1.0),
-    vdiffr
+  caret,
+  testthat (>= 2.1.0),
+  vdiffr

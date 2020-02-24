@@ -8,7 +8,7 @@ lime_explain <- function(bin_continuous, quantile_bins, nbins,
                          gower_pow, all_fs, label_fs){
 
   # Set a seed if requested
-  if (!is.null(seed)) set.seed(seed)
+  #if (!is.null(seed)) set.seed(seed)
 
   # Apply the lime function
   lime <- lime::lime(x = train,
@@ -17,6 +17,9 @@ lime_explain <- function(bin_continuous, quantile_bins, nbins,
                      n_bins = nbins,
                      quantile_bins = quantile_bins,
                      use_density = use_density)
+
+  # Set a seed if requested
+  #if (!is.null(seed)) set.seed(seed)
 
   # Apply the explain function and add some additional variables
   explain <- lime::explain(x = test,

@@ -31,6 +31,8 @@
 #' @param label_fs The response label to use when all feature
 #'        selection methods are implemented.
 #' @param seed Number to be used as a seed (if desired).
+#' @param furrr Indicates whether to use future and furrr to do the
+#'        applying of LIME (set to FALSE by default which uses purrr)
 #'
 #' @importFrom dplyr arrange bind_cols everything filter group_by mutate n select summarise ungroup %>%
 #' @importFrom future multisession plan
@@ -63,7 +65,7 @@ apply_lime <- function(train, test, model, sim_method, nbins,
                        feature_select = "auto", dist_fun = "gower",
                        kernel_width = NULL, gower_pow = 1,
                        all_fs = FALSE, label_fs = NULL, #nreps = 1,
-                       seed = NULL){
+                       seed = NULL, furrr = FALSE){
 
   # Put the input options into a list
   inputs <- organize_inputs(sim_method, nbins) # helper
@@ -72,21 +74,40 @@ apply_lime <- function(train, test, model, sim_method, nbins,
   #future::plan(future::multisession)
 
   # Apply the lime and explain functions for all specified inputs
-  results <- purrr::pmap(.l = inputs,
-                                .f = lime_explain, # helper
-                                train = train,
-                                test = test,
-                                model = model,
-                                label = label,
-                                n_features = n_features,
-                                n_permutations = n_permutations,
-                                feature_select = feature_select,
-                                dist_fun = "gower",
-                                kernel_width = kernel_width,
-                                gower_pow = 1,
-                                all_fs = all_fs,
-                                label_fs = label_fs,
-                                seed = seed)
+  if (furrr == FALSE) {
+    if (!is.null(seed)) set.seed(seed)
+    results <- purrr::pmap(.l = inputs,
+                           .f = lime_explain, # helper
+                           train = train,
+                           test = test,
+                           model = model,
+                           label = label,
+                           n_features = n_features,
+                           n_permutations = n_permutations,
+                           feature_select = feature_select,
+                           dist_fun = "gower",
+                           kernel_width = kernel_width,
+                           gower_pow = 1,
+                           all_fs = all_fs,
+                           label_fs = label_fs)
+  } else if (furrr == TRUE) {
+    if (!is.null(seed)) set.seed(seed)
+    results <- furrr::future_pmap (.l = inputs,
+                                   .f = lime_explain, # helper
+                                   train = train,
+                                   test = test,
+                                   model = model,
+                                   label = label,
+                                   n_features = n_features,
+                                   n_permutations = n_permutations,
+                                   feature_select = feature_select,
+                                   dist_fun = "gower",
+                                   kernel_width = kernel_width,
+                                   gower_pow = 1,
+                                   all_fs = all_fs,
+                                   label_fs = label_fs)
+  }
+
 
   # Separate the lime and explain function results
   results <- list(lime = purrr::map(results, function(list) list$lime),
