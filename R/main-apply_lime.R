@@ -23,17 +23,23 @@
 #'        \code{stats::dist()} will be used.
 #' @param kernel_width Kernel width to use if \code{dist_fun} is not
 #'        'gower'.
-#' @param gower_pow Power to use when computing the Gower distance.
+#' @param gower_pow Numeric vector of powers to use when computing 
+#'        the Gower distance.
 #' @param all_fs Indicates whether all feature selection methods
-#'        should be used. Must be used with 'label_fs' option to
-#'        specify the label to use for feature selection. (Only one
-#'        label is allowe for now.)
+#'        should be applied for an implementation of LIME to see how
+#'        the features selected varies within a LIME implemenation.
+#'        Note that the LIME results returned will correspond to the 
+#'        method specified in the \code{feature_selection} option. 
+#'        This option must be used with  the \code{label_fs} option 
+#'        to specify the label to use for feature selection. (Only 
+#'        one label is allowed for now.)
 #' @param label_fs The response label to use when all feature
 #'        selection methods are implemented.
 #' @param seed Number to be used as a seed (if desired).
-#' @param furrr Indicates whether to use future and furrr to do the
-#'        applying of LIME (set to FALSE by default which uses purrr)
-#'
+#' @param apply_method The package that should be used to apply LIME
+#'        multiple times. Options are 'purrr' (default), 'furrr', or
+#'        'future_furrr'.
+#'        
 #' @importFrom dplyr arrange bind_cols everything filter group_by mutate n select summarise ungroup %>%
 #' @importFrom future multisession plan
 #' @importFrom furrr future_pmap
@@ -64,17 +70,14 @@ apply_lime <- function(train, test, model, sim_method, nbins,
                        label, n_features, n_permutations = 5000,
                        feature_select = "auto", dist_fun = "gower",
                        kernel_width = NULL, gower_pow = 1,
-                       all_fs = FALSE, label_fs = NULL, #nreps = 1,
-                       seed = NULL, furrr = FALSE){
+                       all_fs = FALSE, label_fs = NULL,
+                       seed = NULL, apply_method = "purrr"){
 
   # Put the input options into a list
-  inputs <- organize_inputs(sim_method, nbins) # helper
-
-  # Tell R to run the upcoming code in parallel
-  #future::plan(future::multisession)
+  inputs <- organize_inputs(sim_method, nbins, gower_pow) # helper
 
   # Apply the lime and explain functions for all specified inputs
-  if (furrr == FALSE) {
+  if (apply_method == "purrr") {
     if (!is.null(seed)) set.seed(seed)
     results <- purrr::pmap(.l = inputs,
                            .f = lime_explain, # helper
@@ -87,25 +90,40 @@ apply_lime <- function(train, test, model, sim_method, nbins,
                            feature_select = feature_select,
                            dist_fun = "gower",
                            kernel_width = kernel_width,
-                           gower_pow = 1,
                            all_fs = all_fs,
                            label_fs = label_fs)
-  } else if (furrr == TRUE) {
+  } else if (apply_method == "furrr") {
     if (!is.null(seed)) set.seed(seed)
-    results <- furrr::future_pmap (.l = inputs,
-                                   .f = lime_explain, # helper
-                                   train = train,
-                                   test = test,
-                                   model = model,
-                                   label = label,
-                                   n_features = n_features,
-                                   n_permutations = n_permutations,
-                                   feature_select = feature_select,
-                                   dist_fun = "gower",
-                                   kernel_width = kernel_width,
-                                   gower_pow = 1,
-                                   all_fs = all_fs,
-                                   label_fs = label_fs)
+    results <- furrr::future_pmap(.l = inputs,
+                                  .f = lime_explain, # helper
+                                  train = train,
+                                  test = test,
+                                  model = model,
+                                  label = label,
+                                  n_features = n_features,
+                                  n_permutations = n_permutations,
+                                  feature_select = feature_select,
+                                  dist_fun = "gower",
+                                  kernel_width = kernel_width,
+                                  all_fs = all_fs,
+                                  label_fs = label_fs)
+  } else if (apply_method == "future_furrr") {
+    # Tell R to run the upcoming code in parallel
+    future::plan(future::multisession)
+    if (!is.null(seed)) set.seed(seed)
+    results <- furrr::future_pmap(.l = inputs,
+                                  .f = lime_explain, # helper
+                                  train = train,
+                                  test = test,
+                                  model = model,
+                                  label = label,
+                                  n_features = n_features,
+                                  n_permutations = n_permutations,
+                                  feature_select = feature_select,
+                                  dist_fun = "gower",
+                                  kernel_width = kernel_width,
+                                  all_fs = all_fs,
+                                  label_fs = label_fs)
   }
 
 

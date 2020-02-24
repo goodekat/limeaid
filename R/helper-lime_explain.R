@@ -2,13 +2,10 @@
 # one set of input options
 
 lime_explain <- function(bin_continuous, quantile_bins, nbins,
-                         use_density, train, test, model, label,
-                         n_features, feature_select, seed,
+                         use_density, gower_pow, train, test, model, 
+                         label, n_features, feature_select,
                          n_permutations, dist_fun, kernel_width,
-                         gower_pow, all_fs, label_fs){
-
-  # Set a seed if requested
-  #if (!is.null(seed)) set.seed(seed)
+                         all_fs, label_fs){
 
   # Apply the lime function
   lime <- lime::lime(x = train,
@@ -17,9 +14,6 @@ lime_explain <- function(bin_continuous, quantile_bins, nbins,
                      n_bins = nbins,
                      quantile_bins = quantile_bins,
                      use_density = use_density)
-
-  # Set a seed if requested
-  #if (!is.null(seed)) set.seed(seed)
 
   # Apply the explain function and add some additional variables
   explain <- lime::explain(x = test,
@@ -36,8 +30,9 @@ lime_explain <- function(bin_continuous, quantile_bins, nbins,
     mutate(sim_method = inputs2method(bin_continuous = bin_continuous,
                                       quantile_bins = quantile_bins,
                                       use_density = use_density),
-           nbins = ifelse(sim_method %in% c("quantile_bins", "equal_bins"), nbins, NA)) %>%
-    select(sim_method, nbins, everything())
+           nbins = ifelse(sim_method %in% c("quantile_bins", "equal_bins"), nbins, NA),
+           gower_pow = gower_pow) %>%
+    select(sim_method, nbins, gower_pow, everything())
 
   return(list(lime = lime, explain = explain))
 

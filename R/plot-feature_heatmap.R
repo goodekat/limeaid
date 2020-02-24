@@ -31,7 +31,7 @@
 #'               seed = 20190914)
 #'
 #' # Plot heatmap of selected features across LIME implementations
-#' metric_plot(sine_lime_explain$explain)
+#' feature_heatmap(sine_lime_explain$explain)
 #'
 #' # Return a heatmap with only the features selected first by LIME
 #' feature_heatmap(sine_lime_explain$explain, feature_num = 1)
@@ -40,16 +40,18 @@ feature_heatmap <- function(explanations, feature_nums = NULL){
 
   # Checks
   checkmate::expect_data_frame(explanations)
+  if (!is.null(feature_nums)) checkmate::expect_double(feature_nums)
 
   # Organize the explanation data for plotting
   heatmap_data <- explanations %>%
-    select(sim_method, nbins, case, feature, feature_weight) %>%
+    select(sim_method, nbins, gower_pow, case, feature, feature_weight) %>%
     mutate(feature_magnitude = abs(feature_weight)) %>%
-    group_by(sim_method, nbins, case) %>%
-    arrange(sim_method, nbins, case, desc(feature_magnitude)) %>%
+    group_by(sim_method, nbins, gower_pow, case) %>%
+    arrange(sim_method, nbins, gower_pow, case, desc(feature_magnitude)) %>%
     mutate(feature_num = 1:n()) %>%
     ungroup() %>%
     mutate(nbins = factor(nbins),
+           gower_pow = factor(paste("Gower Power of", gower_pow)),
            case = factor(case),
            feature = factor(feature),
            sim_method =
@@ -79,7 +81,7 @@ feature_heatmap <- function(explanations, feature_nums = NULL){
   # Create the heatmap
   ggplot(heatmap_data, aes(x = nbins_plot, y = case, fill = feature)) +
     geom_tile() +
-    facet_grid(feature_num ~ sim_method_plot, scales = "free", space = "free") +
+    facet_grid(feature_num ~ sim_method_plot + gower_pow, scales = "free", space = "free") +
     theme_bw() +
     labs(x = "Number of Bins",
          y = "Prediction Number",

@@ -64,26 +64,28 @@ method2inputs <- function(sim_method){
   return(data.frame(bin_continuous, quantile_bins, use_density))
 
 }
-
-organize_inputs <- function(sim_method, nbins){
+               
+organize_inputs <- function(sim_method, nbins, gower_pow){
 
   # Create a dataframe with the bin based simulation methods
   bin_method = sim_method[!(sim_method %in% c("kernel_density", "normal_approx"))]
-  bin_inputs = expand.grid(nbins, bin_method)
-  colnames(bin_inputs) = c("nbins", "sim_method")
+  bin_inputs = expand.grid(nbins, bin_method, gower_pow)
+  colnames(bin_inputs) = c("nbins", "sim_method", "gower_pow")
 
   # Create a dataframe with the density based simulation methods
   density_method = sim_method[!(sim_method %in% c("quantile_bins", "equal_bins"))]
-  density_inputs = data.frame(nbins = rep(4, length(density_method)),
-                              sim_method = density_method)
-
+  density_inputs = expand.grid(density_method, gower_pow)
+  colnames(density_inputs) = c("sim_method", "gower_pow")
+  density_inputs <- density_inputs %>%
+    mutate(nbins = rep(4, n()))
+  
   # Join the simulation methods dataframes
   inputs <- rbind(bin_inputs, density_inputs)
-
+  
   # Add lime input variables
   inputs <- inputs %>%
     bind_cols(purrr::map_df(.x = inputs$sim_method, .f = method2inputs)) %>%
-    select(bin_continuous, quantile_bins, nbins, use_density)
+    select(bin_continuous, quantile_bins, nbins, use_density, gower_pow)
 
   # Return the inputs as a list
   return(as.list(inputs))

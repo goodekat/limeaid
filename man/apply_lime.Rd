@@ -7,7 +7,7 @@
 apply_lime(train, test, model, sim_method, nbins, label, n_features,
   n_permutations = 5000, feature_select = "auto", dist_fun = "gower",
   kernel_width = NULL, gower_pow = 1, all_fs = FALSE,
-  label_fs = NULL, seed = NULL, furrr = FALSE)
+  label_fs = NULL, seed = NULL, apply_method = "purrr")
 }
 \arguments{
 \item{train}{Dataframe of training data features.}
@@ -42,20 +42,26 @@ the simulated data. Default is 'gower'. Otherwise,
 \item{kernel_width}{Kernel width to use if \code{dist_fun} is not
 'gower'.}
 
-\item{gower_pow}{Power to use when computing the Gower distance.}
+\item{gower_pow}{Numeric vector of powers to use when computing 
+the Gower distance.}
 
 \item{all_fs}{Indicates whether all feature selection methods
-should be used. Must be used with 'label_fs' option to
-specify the label to use for feature selection. (Only one
-label is allowe for now.)}
+should be applied for an implementation of LIME to see how
+the features selected varies within a LIME implemenation.
+Note that the LIME results returned will correspond to the 
+method specified in the \code{feature_selection} option. 
+This option must be used with  the \code{label_fs} option 
+to specify the label to use for feature selection. (Only 
+one label is allowed for now.)}
 
 \item{label_fs}{The response label to use when all feature
 selection methods are implemented.}
 
 \item{seed}{Number to be used as a seed (if desired).}
 
-\item{furrr}{Indicates whether to use future and furrr to do the
-applying of LIME (set to FALSE by default which uses purrr)}
+\item{apply_method}{The package that should be used to apply LIME
+multiple times. Options are 'purrr' (default), 'furrr', or
+'future_furrr'.}
 }
 \description{
 Applies LIME with the specified tunning parameter options.

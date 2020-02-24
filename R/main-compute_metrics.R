@@ -21,6 +21,7 @@
 #'   13-17, 2016, 1135–1144.
 #'
 #' @export compute_metrics
+#' @importFrom dplyr arrange
 #'
 #' @examples
 #'
@@ -50,6 +51,7 @@ compute_metrics <- function(explanations, metrics = "all"){
 
   # Checks
   checkmate::expect_data_frame(explanations)
+  checkmate::expect_character(metrics)
 
   # If metrics is not specified
   if ("all" %in% metrics) metrics = c("ave_r2", "msee", "ave_fidelity")
@@ -61,16 +63,19 @@ compute_metrics <- function(explanations, metrics = "all"){
 
   # Compute the metrics
   res <- explanations %>%
-    group_by(implementation, sim_method, nbins) %>%
+    group_by(implementation, sim_method, nbins, gower_pow) %>%
     summarise(ave_r2 = mean(model_r2),
               msee = sum((label_prob - model_prediction)^2) /
                 sqrt(n() - 1),
               ave_fidelity = mean(fidelity)) %>%
     ungroup() %>%
-    as.data.frame()
+    as.data.frame() %>% 
+    mutate(implemenation = as.numeric(implementation)) %>% 
+    arrange(implemenation) %>% 
+    mutate(implemenation = as.character(implemenation))
 
   # Return a dataframe with the desired metrics
-  return(res %>% select(implementation, sim_method, nbins, metrics))
+  return(res %>% select(implementation, sim_method, nbins, gower_pow, metrics))
 
 }
 

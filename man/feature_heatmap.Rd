@@ -35,7 +35,7 @@ sine_lime_explain <-
               seed = 20190914)
 
 # Plot heatmap of selected features across LIME implementations
-metric_plot(sine_lime_explain$explain)
+feature_heatmap(sine_lime_explain$explain)
 
 # Return a heatmap with only the features selected first by LIME
 feature_heatmap(sine_lime_explain$explain, feature_num = 1)

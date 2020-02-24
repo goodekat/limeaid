@@ -82,21 +82,35 @@ metric_plot <- function(explanations, metrics = 'all'){
                                       as.character(nbins)))) %>%
     mutate(ranking_value = ifelse(metric == "Average R2", -value, value)) %>%
     group_by(metric) %>%
-    mutate(rank = factor(rank(ranking_value))) %>%
+    mutate(rank = factor(rank(ranking_value)),
+           gower_pow = factor(gower_pow)) %>%
     arrange(metric, value)
 
   # Create color palette
   colors <- scales::seq_gradient_pal("blue", "lightblue", "Lab")(seq(0, 1 , length.out = length(unique(plot_data$rank))))
 
   # Create the comparison plot
-  ggplot(plot_data, aes(x = nbins_plot, y = value, color = rank)) +
-    geom_point() +
-    facet_grid(metric ~ sim_method_plot, scales = "free", space = "free_x") +
-    theme_bw() +
-    labs(x = "Number of Bins",
-         y = "Metric Value",
-         color = "Rank") +
-    scale_colour_manual(values = colors)
+  if (length(unique(plot_data$gower_pow)) == 1) {
+    ggplot(plot_data, aes(x = nbins_plot, y = value, color = rank)) +
+      geom_point() +
+      facet_grid(metric ~ sim_method_plot, scales = "free", space = "free_x") +
+      theme_bw() +
+      labs(x = "Number of Bins",
+           y = "Metric Value",
+           color = "Rank") +
+      scale_colour_manual(values = colors)  
+  } else {
+    ggplot(plot_data, 
+           aes(x = nbins_plot, y = value, color = rank, shape = gower_pow)) +
+      geom_point() +
+      facet_grid(metric ~ sim_method_plot, scales = "free", space = "free_x") +
+      theme_bw() +
+      labs(x = "Number of Bins",
+           y = "Metric Value",
+           color = "Rank",
+           shape = "Gower \nPower") +
+      scale_colour_manual(values = colors)
+  }
 
 }
 
