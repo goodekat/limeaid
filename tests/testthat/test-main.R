@@ -1,8 +1,5 @@
 context("test-main_functions")
 
-# Load packages
-library(dplyr)
-
 ## Iris Data and Model ------------------------------------------------
 
 # Iris training and testing

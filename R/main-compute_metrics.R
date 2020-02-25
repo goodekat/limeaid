@@ -52,6 +52,9 @@ compute_metrics <- function(explanations, metrics = "all"){
   # Checks
   checkmate::expect_data_frame(explanations)
   checkmate::expect_character(metrics)
+  if (!all(metrics %in% c("all", "ave_r2", "msee", "ave_fidelity"))) {
+    stop("metrics specified incorrectly. Must be a character vector with options of 'ave_r2', 'msee', 'ave_fidelity'.")
+  } 
 
   # If metrics is not specified
   if ("all" %in% metrics) metrics = c("ave_r2", "msee", "ave_fidelity")

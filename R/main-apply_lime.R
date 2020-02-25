@@ -39,7 +39,8 @@
 #' @param apply_method The package that should be used to apply LIME
 #'        multiple times. Options are 'purrr' (default), 'furrr', or
 #'        'future_furrr'.
-#'        
+#'
+#' @importFrom checkmate expect_character expect_data_frame expect_double      
 #' @importFrom dplyr arrange bind_cols everything filter group_by mutate n select summarise ungroup %>%
 #' @importFrom future multisession plan
 #' @importFrom furrr future_pmap
@@ -73,6 +74,25 @@ apply_lime <- function(train, test, model, sim_method, nbins,
                        all_fs = FALSE, label_fs = NULL,
                        seed = NULL, apply_method = "purrr"){
 
+  # Checks
+  checkmate::expect_data_frame(train)
+  checkmate::expect_data_frame(test)
+  if (!all(sim_method %in% c("quantile_bins", "equal_bins", "kernel_density", "normal_approx"))) {
+    stop("sim_method specified incorrectly. Must be a character vector with options of 'quantile_bins', 'equal_bins', 'kernel_density', or 'normal_approx'.")
+  } 
+  checkmate::expect_numeric(nbins)
+  checkmate::expect_character(label, len = 1)
+  checkmate::expect_numeric(n_features, len = 1)
+  checkmate::expect_numeric(n_permutations, len = 1)
+  if (!(feature_select %in% c('auto', 'none', 'forward_selection', 'highest_weights', 'lasso_path', 'tree'))) {
+    stop("feature_select specified incorrectly. Options are 'auto', 'none', 'forward_selection', 'highest_weights', 'lasso_path', or 'tree'.")
+  }
+  checkmate::expect_numeric(gower_pow)
+  checkmate::expect_logical(all_fs)
+  if (!(apply_method %in% c("purrr", "furrr", "future_furrr"))) {
+    stop("apply_method specified incorrectly. Options are 'purrr', 'furrr', or 'future_furrr'.")
+  }
+  
   # Put the input options into a list
   inputs <- organize_inputs(sim_method, nbins, gower_pow) # helper
 

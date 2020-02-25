@@ -53,7 +53,10 @@ metric_plot <- function(explanations, metrics = 'all'){
   # Checks
   checkmate::expect_data_frame(explanations)
   checkmate::expect_character(metrics)
-
+  if (!all(metrics %in% c("all", "ave_r2", "msee", "ave_fidelity"))) {
+    stop("metrics specified incorrectly. Must be a character vector with options of 'ave_r2', 'msee', 'ave_fidelity'.")
+  } 
+  
   # If metrics is not specified
   if ("all" %in% metrics) metrics = c("ave_r2", "msee", "ave_fidelity")
 
@@ -89,28 +92,24 @@ metric_plot <- function(explanations, metrics = 'all'){
   # Create color palette
   colors <- scales::seq_gradient_pal("blue", "lightblue", "Lab")(seq(0, 1 , length.out = length(unique(plot_data$rank))))
 
-  # Create the comparison plot
+  # Create the comparison plot based on whether 1 or more gower power 
+  # was specified
   if (length(unique(plot_data$gower_pow)) == 1) {
-    ggplot(plot_data, aes(x = nbins_plot, y = value, color = rank)) +
-      geom_point() +
-      facet_grid(metric ~ sim_method_plot, scales = "free", space = "free_x") +
-      theme_bw() +
-      labs(x = "Number of Bins",
-           y = "Metric Value",
-           color = "Rank") +
-      scale_colour_manual(values = colors)  
+    plot <- ggplot(plot_data, 
+                   aes(x = nbins_plot, y = value, color = rank))
   } else {
-    ggplot(plot_data, 
-           aes(x = nbins_plot, y = value, color = rank, shape = gower_pow)) +
-      geom_point() +
-      facet_grid(metric ~ sim_method_plot, scales = "free", space = "free_x") +
-      theme_bw() +
-      labs(x = "Number of Bins",
-           y = "Metric Value",
-           color = "Rank",
-           shape = "Gower \nPower") +
-      scale_colour_manual(values = colors)
+    plot <- ggplot(plot_data, 
+                   aes(x = nbins_plot, y = value, color = rank, shape = gower_pow))
   }
+  
+  # Add the additional layers to the plot
+  plot + geom_point() +
+    facet_grid(metric ~ sim_method_plot, scales = "free", space = "free_x") +
+    theme_bw() +
+    labs(x = "Number of Bins",
+         y = "Metric Value",
+         color = "Rank") +
+    scale_colour_manual(values = colors)  
 
 }
 
