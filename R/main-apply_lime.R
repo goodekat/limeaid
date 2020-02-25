@@ -81,7 +81,6 @@ apply_lime <- function(train, test, model, sim_method, nbins,
     stop("sim_method specified incorrectly. Must be a character vector with options of 'quantile_bins', 'equal_bins', 'kernel_density', or 'normal_approx'.")
   } 
   checkmate::expect_numeric(nbins)
-  checkmate::expect_character(label, len = 1)
   checkmate::expect_numeric(n_features, len = 1)
   checkmate::expect_numeric(n_permutations, len = 1)
   if (!(feature_select %in% c('auto', 'none', 'forward_selection', 'highest_weights', 'lasso_path', 'tree'))) {
