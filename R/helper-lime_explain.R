@@ -5,9 +5,10 @@ lime_explain <- function(bin_continuous, quantile_bins, nbins,
                          use_density, gower_pow, train, test, model, 
                          label, n_features, feature_select,
                          n_permutations, dist_fun, kernel_width,
-                         all_fs, label_fs){
+                         all_fs, label_fs, seed){
 
   # Apply the lime function
+  set.seed(seed)
   lime <- lime::lime(x = train,
                      model = model,
                      bin_continuous = bin_continuous,
@@ -16,6 +17,7 @@ lime_explain <- function(bin_continuous, quantile_bins, nbins,
                      use_density = use_density)
 
   # Apply the explain function and add some additional variables
+  set.seed(seed)
   explain <- lime::explain(x = test,
                            explainer = lime,
                            labels = label,
