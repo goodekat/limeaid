@@ -16,12 +16,13 @@ Imports:
   future,
   furrr,
   ggplot2,
+  lime,
   purrr,
   scales,
+  testthat (>= 2.1.0),
   tidyr
 Remotes: 
   goodekat/lime
 Suggests: 
   caret,
-  testthat (>= 2.1.0),
   vdiffr
