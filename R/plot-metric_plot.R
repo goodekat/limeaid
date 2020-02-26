@@ -99,7 +99,8 @@ metric_plot <- function(explanations, metrics = 'all'){
                    aes(x = nbins_plot, y = value, color = rank))
   } else {
     plot <- ggplot(plot_data, 
-                   aes(x = nbins_plot, y = value, color = rank, shape = gower_pow))
+                   aes(x = nbins_plot, y = value, color = rank, shape = gower_pow)) + 
+      labs(shape = "Gower \nPower")
   }
   
   # Add the additional layers to the plot

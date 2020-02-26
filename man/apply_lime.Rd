@@ -7,7 +7,7 @@
 apply_lime(train, test, model, sim_method, nbins, label, n_features,
   n_permutations = 5000, feature_select = "auto", dist_fun = "gower",
   kernel_width = NULL, gower_pow = 1, all_fs = FALSE,
-  label_fs = NULL, seed = NULL, apply_method = "purrr")
+  label_fs = NULL, seed = NULL)
 }
 \arguments{
 \item{train}{Dataframe of training data features.}
@@ -58,10 +58,6 @@ one label is allowed for now.)}
 selection methods are implemented.}
 
 \item{seed}{Number to be used as a seed (if desired).}
-
-\item{apply_method}{The package that should be used to apply LIME
-multiple times. Options are 'purrr' (default), 'furrr', or
-'future_furrr'.}
 }
 \description{
 Applies LIME with the specified tunning parameter options.

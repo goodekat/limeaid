@@ -36,9 +36,6 @@
 #' @param label_fs The response label to use when all feature
 #'        selection methods are implemented.
 #' @param seed Number to be used as a seed (if desired).
-#' @param apply_method The package that should be used to apply LIME
-#'        multiple times. Options are 'purrr' (default), 'furrr', or
-#'        'future_furrr'.
 #'
 #' @importFrom checkmate expect_character expect_data_frame expect_double      
 #' @importFrom dplyr arrange bind_cols everything filter group_by mutate n select summarise ungroup %>%
@@ -72,7 +69,7 @@ apply_lime <- function(train, test, model, sim_method, nbins,
                        feature_select = "auto", dist_fun = "gower",
                        kernel_width = NULL, gower_pow = 1,
                        all_fs = FALSE, label_fs = NULL,
-                       seed = NULL, apply_method = "purrr"){
+                       seed = NULL){
 
   # Checks
   checkmate::expect_data_frame(train)
@@ -88,64 +85,29 @@ apply_lime <- function(train, test, model, sim_method, nbins,
   }
   checkmate::expect_numeric(gower_pow)
   checkmate::expect_logical(all_fs)
-  if (!(apply_method %in% c("purrr", "furrr", "future_furrr"))) {
-    stop("apply_method specified incorrectly. Options are 'purrr', 'furrr', or 'future_furrr'.")
-  }
   
   # Put the input options into a list
   inputs <- organize_inputs(sim_method, nbins, gower_pow) # helper
-
+  
+  # Tell R to run the upcoming code in parallel
+  future::plan(future::multisession)
+  
   # Apply the lime and explain functions for all specified inputs
-  if (apply_method == "purrr") {
-    if (!is.null(seed)) set.seed(seed)
-    results <- purrr::pmap(.l = inputs,
-                           .f = lime_explain, # helper
-                           train = train,
-                           test = test,
-                           model = model,
-                           label = label,
-                           n_features = n_features,
-                           n_permutations = n_permutations,
-                           feature_select = feature_select,
-                           dist_fun = "gower",
-                           kernel_width = kernel_width,
-                           all_fs = all_fs,
-                           label_fs = label_fs)
-  } else if (apply_method == "furrr") {
-    if (!is.null(seed)) set.seed(seed)
-    results <- furrr::future_pmap(.l = inputs,
-                                  .f = lime_explain, # helper
-                                  train = train,
-                                  test = test,
-                                  model = model,
-                                  label = label,
-                                  n_features = n_features,
-                                  n_permutations = n_permutations,
-                                  feature_select = feature_select,
-                                  dist_fun = "gower",
-                                  kernel_width = kernel_width,
-                                  all_fs = all_fs,
-                                  label_fs = label_fs)
-  } else if (apply_method == "future_furrr") {
-    # Tell R to run the upcoming code in parallel
-    future::plan(future::multisession)
-    if (!is.null(seed)) set.seed(seed)
-    results <- furrr::future_pmap(.l = inputs,
-                                  .f = lime_explain, # helper
-                                  train = train,
-                                  test = test,
-                                  model = model,
-                                  label = label,
-                                  n_features = n_features,
-                                  n_permutations = n_permutations,
-                                  feature_select = feature_select,
-                                  dist_fun = "gower",
-                                  kernel_width = kernel_width,
-                                  all_fs = all_fs,
-                                  label_fs = label_fs)
-  }
-
-
+  results <- furrr::future_pmap(.l = inputs,
+                                .f = lime_explain, # helper
+                                train = train,
+                                test = test,
+                                model = model,
+                                label = label,
+                                n_features = n_features,
+                                n_permutations = n_permutations,
+                                feature_select = feature_select,
+                                dist_fun = "gower",
+                                kernel_width = kernel_width,
+                                all_fs = all_fs,
+                                label_fs = label_fs, 
+                                seed = seed)
+  
   # Separate the lime and explain function results
   results <- list(lime = purrr::map(results, function(list) list$lime),
                   explain = purrr::map_df(results,
@@ -158,11 +120,20 @@ apply_lime <- function(train, test, model, sim_method, nbins,
     mutate(sim_method = factor(sim_method, levels = sim_method_levels))
 
   # Name the items in the lime list
-  names(results$lime) <- purrr::map_chr(1:length(results$lime), function(case)
-      sprintf("case: %s %s",
-              ifelse(sim_method[case] %in% c("quantile_bins", "equal_bins"), nbins, ""),
-              sim_method[case]))
-
+  names(results$lime) <- 
+    purrr::map_chr(.x = 1:length(results$lime), 
+                   .f = function(case) {
+                     method = 
+                       inputs2method(bin_continuous = inputs$bin_continuous[case], 
+                                     use_density = inputs$use_density[case], 
+                                     quantile_bins = inputs$quantile_bins[case])
+                     sprintf("case: %s %s, gower_pow = %s",
+                             ifelse(method %in% c("quantile_bins", "equal_bins"), inputs$nbins[case], ""),
+                             method, 
+                             inputs$gower_pow[case])
+                     }
+                   )
+      
   # Return the results from lime
   return(results)
 
