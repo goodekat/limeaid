@@ -59,11 +59,6 @@ compute_metrics <- function(explanations, metrics = "all"){
   # If metrics is not specified
   if ("all" %in% metrics) metrics = c("ave_r2", "msee", "ave_fidelity")
 
-  # Compute fidelity if requested
-  if ("ave_fidelity" %in% metrics) {
-    explanations$fidelity <- compute_fidelities(explanations)
-  }
-
   # Compute the metrics
   res <- explanations %>%
     group_by(implementation, sim_method, nbins, gower_pow) %>%

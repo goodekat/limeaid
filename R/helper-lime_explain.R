@@ -5,7 +5,7 @@ lime_explain <- function(bin_continuous, quantile_bins, nbins,
                          use_density, gower_pow, train, test, model, 
                          label, n_features, feature_select,
                          n_permutations, dist_fun, kernel_width,
-                         all_fs, label_fs, seed){
+                         return_perms, all_fs, label_fs, seed){
 
   # Apply the lime function
   set.seed(seed)
@@ -33,9 +33,22 @@ lime_explain <- function(bin_continuous, quantile_bins, nbins,
                                       quantile_bins = quantile_bins,
                                       use_density = use_density),
            nbins = ifelse(sim_method %in% c("quantile_bins", "equal_bins"), nbins, NA),
-           gower_pow = gower_pow) %>%
-    select(sim_method, nbins, gower_pow, everything())
+           gower_pow = gower_pow) 
+  
+  # Compute the fidelity for each observation in the explanations dataset
+  explain$fidelity <- compute_fidelities(explain)
 
+  # Reorder variables and determine which to return based on return_perms
+  if (return_perms == TRUE) {
+    explain <- explain %>% select(sim_method, nbins, gower_pow, everything())
+  } else if (return_perms == FALSE) {
+    explain <- explain %>% 
+      select(sim_method, nbins, gower_pow, everything()) %>%
+      select(-perms_raw, -perms_numerified, -perms_pred_complex, 
+             -perms_pred_simple, -weights)
+  }
+  
+  # Return the output in a list
   return(list(lime = lime, explain = explain))
 
 }

@@ -4,10 +4,10 @@
 \alias{apply_lime}
 \title{Apply Different Implementations of LIME}
 \usage{
-apply_lime(train, test, model, sim_method, nbins, label, n_features,
+apply_lime(train, test, model, sim_method, nbins = 4, label, n_features,
   n_permutations = 5000, feature_select = "auto", dist_fun = "gower",
   kernel_width = NULL, gower_pow = 1, all_fs = FALSE,
-  label_fs = NULL, seed = NULL)
+  return_perms = FALSE, label_fs = NULL, seed = NULL)
 }
 \arguments{
 \item{train}{Dataframe of training data features.}
@@ -53,6 +53,10 @@ method specified in the \code{feature_selection} option.
 This option must be used with  the \code{label_fs} option 
 to specify the label to use for feature selection. (Only 
 one label is allowed for now.)}
+
+\item{return_perms}{Should the simulated dataset (permutations) be 
+returned for all of the observations in the test datatset and
+LIME implementations? Default is FALSE.}
 
 \item{label_fs}{The response label to use when all feature
 selection methods are implemented.}

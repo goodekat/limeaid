@@ -25,6 +25,9 @@
 #'        'gower'.
 #' @param gower_pow Numeric vector of powers to use when computing 
 #'        the Gower distance.
+#' @param return_perms Should the simulated dataset (permutations) be 
+#'        returned for all of the observations in the test datatset and
+#'        LIME implementations? Default is FALSE.
 #' @param all_fs Indicates whether all feature selection methods
 #'        should be applied for an implementation of LIME to see how
 #'        the features selected varies within a LIME implemenation.
@@ -64,12 +67,12 @@
 #'               nbins = c(3, 4),
 #'               seed = 20190914)
 
-apply_lime <- function(train, test, model, sim_method, nbins,
+apply_lime <- function(train, test, model, sim_method, nbins = 4,
                        label, n_features, n_permutations = 5000,
                        feature_select = "auto", dist_fun = "gower",
                        kernel_width = NULL, gower_pow = 1,
-                       all_fs = FALSE, label_fs = NULL,
-                       seed = NULL){
+                       all_fs = FALSE, return_perms = FALSE,
+                       label_fs = NULL, seed = NULL){
 
   # Checks
   checkmate::expect_data_frame(train)
@@ -104,6 +107,7 @@ apply_lime <- function(train, test, model, sim_method, nbins,
                                 feature_select = feature_select,
                                 dist_fun = "gower",
                                 kernel_width = kernel_width,
+                                return_perms = return_perms,
                                 all_fs = all_fs,
                                 label_fs = label_fs, 
                                 seed = seed)
