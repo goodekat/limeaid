@@ -85,12 +85,12 @@ metric_plot <- function(explanations, metrics = 'all'){
                                       as.character(nbins)))) %>%
     mutate(ranking_value = ifelse(metric == "Average R2", -value, value)) %>%
     group_by(metric) %>%
-    mutate(rank = factor(rank(ranking_value)),
+    mutate(rank = rank(ranking_value),
            gower_pow = factor(gower_pow)) %>%
     arrange(metric, value)
 
   # Create color palette
-  colors <- scales::seq_gradient_pal("blue", "lightblue", "Lab")(seq(0, 1 , length.out = length(unique(plot_data$rank))))
+  #colors <- scales::seq_gradient_pal("blue", "lightblue", "Lab")(seq(0, 1 , length.out = length(unique(plot_data$rank))))
 
   # Create the comparison plot based on whether 1 or more gower power 
   # was specified
@@ -109,8 +109,8 @@ metric_plot <- function(explanations, metrics = 'all'){
     theme_bw() +
     labs(x = "Number of Bins",
          y = "Metric Value",
-         color = "Rank") +
-    scale_colour_manual(values = colors)  
+         color = "Rank") #+
+    #scale_colour_manual(values = colors)  
 
 }
 
