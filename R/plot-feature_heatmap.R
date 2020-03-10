@@ -6,11 +6,17 @@
 #'
 #' @param explanations Explain dataframe from the list returned by apply_lime.
 #' @param feature_nums A vector of integer values from 1 to \code{nfeatures} (specified in \code{apply_lime}) to determine which features selected by LIME should be included in the plot.
+#' @param facet_var Additional variable to facet by (must be a variable in the explanations dataframe)
+#' @param order_method Method for ordering the predictions: either
+#'        "obs_num" which uses the order from the explanation
+#'        dataframe (default) or one of the options from the package
+#'        seriation (seriation::list_seriation_methods("dist")) 
 #'
 #' @importFrom checkmate expect_data_frame expect_character
 #' @importFrom cluster daisy
 #' @importFrom ggplot2 aes facet_grid geom_point geom_tile ggplot labs scale_color_manual theme theme_bw
 #' @importFrom seriation seriate
+#' @importFrom tidyselect all_of
 #'
 #' @export feature_heatmap
 #'
@@ -39,6 +45,7 @@
 #' feature_heatmap(sine_lime_explain$explain, feature_num = 1)
 
 feature_heatmap <- function(explanations, feature_nums = NULL,
+                            facet_var = NULL, 
                             order_method = "obs_num"){
 
   # Checks
@@ -47,7 +54,7 @@ feature_heatmap <- function(explanations, feature_nums = NULL,
 
   # Prepare the explanation data for plotting
   heatmap_data <- explanations %>%
-    select(sim_method, nbins, gower_pow, case, feature, feature_weight) %>%
+    select(sim_method, nbins, gower_pow, case, feature, feature_weight, facet_var) %>%
     mutate(feature_magnitude = abs(feature_weight)) %>%
     group_by(sim_method, nbins, gower_pow, case) %>%
     arrange(sim_method, nbins, gower_pow, case, desc(feature_magnitude)) %>%
@@ -97,7 +104,7 @@ feature_heatmap <- function(explanations, feature_nums = NULL,
       mutate(method = paste(sim_method, nbins, gower_pow)) %>%
       select(-feature_weight, -feature_magnitude, -sim_method, 
              -nbins, -gower_pow, -sim_method_plot,
-             -nbins_plot) %>%
+             -nbins_plot, -facet_var) %>%
       pivot_wider(names_from = "method", 
                   values_from = "feature")
     
@@ -116,13 +123,23 @@ feature_heatmap <- function(explanations, feature_nums = NULL,
   }
     
   # Create the heatmap
-  ggplot(heatmap_data, aes(x = nbins_plot, y = case, fill = feature)) +
+  plot <- ggplot(heatmap_data, aes(x = nbins_plot, y = case, fill = feature)) +
     geom_tile() +
-    facet_grid(feature_num ~ sim_method_plot + gower_pow, scales = "free", space = "free") +
     theme_bw() +
     labs(x = "Number of Bins",
          y = "Prediction Number",
          fill = "Feature")
 
+  if (!is.null(facet_var)) {
+    plot + 
+      facet_grid(feature_num + tidyselect::all_of(facet_var) ~ 
+                   sim_method_plot + gower_pow, 
+                 scales = "free", space = "free")
+  } else {
+    plot + 
+      facet_grid(feature_num ~ sim_method_plot + gower_pow, 
+                 scales = "free", space = "free") 
+  }
+    
 }
 

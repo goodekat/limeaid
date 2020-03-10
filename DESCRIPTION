@@ -22,6 +22,7 @@ Imports:
   scales,
   seriation,
   testthat (>= 2.1.0),
+  tidyselect,
   tidyr
 Remotes: 
   goodekat/lime

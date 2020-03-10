@@ -4,13 +4,20 @@
 \alias{feature_heatmap}
 \title{Heatmap of LIME Selected Features}
 \usage{
-feature_heatmap(explanations, feature_nums = NULL,
+feature_heatmap(explanations, feature_nums = NULL, facet_var = NULL,
   order_method = "obs_num")
 }
 \arguments{
 \item{explanations}{Explain dataframe from the list returned by apply_lime.}
 
 \item{feature_nums}{A vector of integer values from 1 to \code{nfeatures} (specified in \code{apply_lime}) to determine which features selected by LIME should be included in the plot.}
+
+\item{facet_var}{Additional variable to facet by (must be a variable in the explanations dataframe)}
+
+\item{order_method}{Method for ordering the predictions: either
+"obs_num" which uses the order from the explanation
+dataframe (default) or one of the options from the package
+seriation (seriation::list_seriation_methods("dist"))}
 }
 \description{
 Creates a heatmap of the features selected by lime for all
