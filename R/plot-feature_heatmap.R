@@ -15,12 +15,15 @@
 #' @param order_method Method for ordering the predictions: either
 #'        "obs_num" which uses the order from the explanation
 #'        dataframe (default) or one of the options from the package
-#'        seriation (seriation::list_seriation_methods("dist")) 
+#'        seriation (methods currently implemented are "ARSA", "GW",
+#'        "HC", "OLO", "Random", "TSP") 
 #'
 #' @importFrom checkmate expect_data_frame expect_character
 #' @importFrom cluster daisy
+#' @importFrom dplyr left_join pull
 #' @importFrom ggplot2 aes facet_grid geom_point geom_tile ggplot labs scale_color_manual theme theme_bw
 #' @importFrom seriation seriate
+#' @importFrom tidyr pivot_wider
 #' @importFrom tidyselect all_of
 #'
 #' @export feature_heatmap
@@ -67,7 +70,6 @@ feature_heatmap <- function(explanations, feature_nums = NULL,
     ungroup() %>%
     mutate(nbins = factor(nbins),
            gower_pow = factor(paste("Gower Power of", gower_pow)),
-           case = factor(case),
            feature = factor(feature),
            sim_method =
              ifelse(sim_method == "quantile_bins", "Quantile Bins",
@@ -79,32 +81,39 @@ feature_heatmap <- function(explanations, feature_nums = NULL,
                                            as.character(sim_method))),
            nbins_plot = factor(ifelse(is.na(nbins),
                                       as.character(sim_method),
-                                      as.character(nbins))))
-
+                                      as.character(nbins)))) %>%
+    mutate(case = as.character(case))
+  
+  # If requested add faceting variable
   if (!is.null(facet_var)) {
     heatmap_data <- heatmap_data %>%
-      left_join(data.frame(case = factor(unique(explanations$case)), 
-                           facet_var = facet_var),
-                by = "case")  
+      left_join(data.frame(case = unique(explanations$case), 
+                           facet_var = facet_var) %>%
+                  mutate(case = as.character(case)),
+                by = "case")
   }
   
   # Subset the data to only keep the requested features
   if (!(is.null(feature_nums))) {
+    min_feat_num <- min(feature_nums)
     heatmap_data <- heatmap_data %>%
       filter(feature_num %in% feature_nums) %>%
       mutate(feature_num = factor(feature_num),
              feature_num = paste("Feature", feature_num))
   } else {
+    min_feat_num <- min(heatmap_data$feature_num)
     heatmap_data <- heatmap_data %>%
       mutate(feature_num = factor(feature_num),
              feature_num = paste("Feature", feature_num))
   }
   
-  # If resquested, determine an order for the cases using seriation 
+  # If requested, determine an order for the cases using seriation 
   if (order_method == "obs_num") {
     
-    # Create a new variable order that is the same as case
-    heatmap_data <- heatmap_data %>% mutate(case = as.numeric(case))
+    # Turn case into a factor and order the levels numerically
+    cases_order = sort(as.numeric(as.character(unique(heatmap_data$case))))
+    heatmap_data <- heatmap_data %>% 
+      mutate(case = factor(case, levels = cases_order))
     
   } else {
     
@@ -113,29 +122,39 @@ feature_heatmap <- function(explanations, feature_nums = NULL,
     # Row: case in data
     # Cell: feature selected by lime
     sim_features <- heatmap_data %>%
+      filter(feature_num == paste("Feature", min_feat_num)) %>%
       mutate(method = paste(sim_method, nbins, gower_pow)) %>%
       select(-feature_weight, -feature_magnitude, -sim_method, 
              -nbins, -gower_pow, -sim_method_plot,
              -nbins_plot, -facet_var) %>%
-      pivot_wider(names_from = "method", 
-                  values_from = "feature")
+      tidyr::pivot_wider(names_from = "method", values_from = "feature")
     
     # Calculate the distances between colums and use seriate
     # to order the cases
-    features_dist <- daisy(sim_features %>% 
-                             select(-case, -feature_num))
-    order_method = "Random"
-    features_ord <- seriate(features_dist, method = order_method)
-    order <- features_ord[[1]][1:dim(sim_features)[1]]
+    features_dist <- cluster::daisy(sim_features %>% select(-case, -feature_num))
+    features_ord <- seriation::seriate(features_dist, method = order_method)
+    if (order_method %in% c("ARSA", "Random", "TSP")) {
+      sim_features$order <- features_ord[[1]][]
+    } else if (order_method %in% c("GW", "HC", "OLO")) {
+      sim_features$order <- features_ord[[1]][]$order
+    }
     
+    cases_order <- sim_features %>% 
+      select(case, order) %>% 
+      arrange(order) %>%
+      pull(case)
+
     # Add the order to the heatmap data
     heatmap_data <- heatmap_data %>%
-      mutate(case = factor(case, levels = order))
+      mutate(case = as.character(case)) %>%
+      mutate(case = factor(case, levels = cases_order))
     
   }
     
   # Create the heatmap
-  plot <- ggplot(heatmap_data, aes(x = nbins_plot, y = case, fill = feature)) +
+  plot <- 
+    ggplot(heatmap_data, 
+           aes(x = nbins_plot, y = case, fill = feature)) +
     geom_tile() +
     theme_bw() +
     labs(x = "Number of Bins",

@@ -22,7 +22,8 @@ will be used to facet the heatmap. (NULL by default)}
 \item{order_method}{Method for ordering the predictions: either
 "obs_num" which uses the order from the explanation
 dataframe (default) or one of the options from the package
-seriation (seriation::list_seriation_methods("dist"))}
+seriation (methods currently implemented are "ARSA", "GW",
+"HC", "OLO", "Random", "TSP")}
 }
 \description{
 Creates a heatmap of the features selected by lime for all
