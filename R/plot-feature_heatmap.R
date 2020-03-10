@@ -5,8 +5,13 @@
 #' LIME implementations.
 #'
 #' @param explanations Explain dataframe from the list returned by apply_lime.
-#' @param feature_nums A vector of integer values from 1 to \code{nfeatures} (specified in \code{apply_lime}) to determine which features selected by LIME should be included in the plot.
-#' @param facet_var Additional variable to facet by (must be a variable in the explanations dataframe)
+#' @param feature_nums A vector of integer values from 1 to
+#'        \code{nfeatures} (specified in \code{apply_lime}) to 
+#'        determine which features selected by LIME should be 
+#'        included in the plot.
+#' @param facet_var A categorical variable that is the same length as
+#'        the data input to apply_lime for the test argument that 
+#'        will be used to facet the heatmap. (NULL by default) 
 #' @param order_method Method for ordering the predictions: either
 #'        "obs_num" which uses the order from the explanation
 #'        dataframe (default) or one of the options from the package
@@ -54,7 +59,7 @@ feature_heatmap <- function(explanations, feature_nums = NULL,
 
   # Prepare the explanation data for plotting
   heatmap_data <- explanations %>%
-    select(sim_method, nbins, gower_pow, case, feature, feature_weight, facet_var) %>%
+    select(sim_method, nbins, gower_pow, case, feature, feature_weight) %>%
     mutate(feature_magnitude = abs(feature_weight)) %>%
     group_by(sim_method, nbins, gower_pow, case) %>%
     arrange(sim_method, nbins, gower_pow, case, desc(feature_magnitude)) %>%
@@ -76,6 +81,13 @@ feature_heatmap <- function(explanations, feature_nums = NULL,
                                       as.character(sim_method),
                                       as.character(nbins))))
 
+  if (!is.null(facet_var)) {
+    heatmap_data <- heatmap_data %>%
+      left_join(data.frame(case = factor(unique(explanations$case)), 
+                           facet_var = facet_var),
+                by = "case")  
+  }
+  
   # Subset the data to only keep the requested features
   if (!(is.null(feature_nums))) {
     heatmap_data <- heatmap_data %>%
@@ -130,9 +142,10 @@ feature_heatmap <- function(explanations, feature_nums = NULL,
          y = "Prediction Number",
          fill = "Feature")
 
+  # Facet and return the plot
   if (!is.null(facet_var)) {
     plot + 
-      facet_grid(feature_num + tidyselect::all_of(facet_var) ~ 
+      facet_grid(feature_num + facet_var ~ 
                    sim_method_plot + gower_pow, 
                  scales = "free", space = "free")
   } else {

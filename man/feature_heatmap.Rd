@@ -10,9 +10,14 @@ feature_heatmap(explanations, feature_nums = NULL, facet_var = NULL,
 \arguments{
 \item{explanations}{Explain dataframe from the list returned by apply_lime.}
 
-\item{feature_nums}{A vector of integer values from 1 to \code{nfeatures} (specified in \code{apply_lime}) to determine which features selected by LIME should be included in the plot.}
+\item{feature_nums}{A vector of integer values from 1 to
+\code{nfeatures} (specified in \code{apply_lime}) to 
+determine which features selected by LIME should be 
+included in the plot.}
 
-\item{facet_var}{Additional variable to facet by (must be a variable in the explanations dataframe)}
+\item{facet_var}{A categorical variable that is the same length as
+the data input to apply_lime for the test argument that 
+will be used to facet the heatmap. (NULL by default)}
 
 \item{order_method}{Method for ordering the predictions: either
 "obs_num" which uses the order from the explanation
