@@ -166,11 +166,11 @@ feature_heatmap <- function(explanations, feature_nums = NULL,
     plot + 
       facet_grid(feature_num + facet_var ~ 
                    sim_method_plot + gower_pow, 
-                 scales = "free", space = "free", drop = TRUE)
+                 scales = "free", space = "free")
   } else {
     plot + 
       facet_grid(feature_num ~ sim_method_plot + gower_pow, 
-                 scales = "free", space = "free", drop = TRUE) 
+                 scales = "free", space = "free") 
   }
     
 }
