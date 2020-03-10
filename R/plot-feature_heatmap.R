@@ -8,7 +8,9 @@
 #' @param feature_nums A vector of integer values from 1 to \code{nfeatures} (specified in \code{apply_lime}) to determine which features selected by LIME should be included in the plot.
 #'
 #' @importFrom checkmate expect_data_frame expect_character
+#' @importFrom cluster daisy
 #' @importFrom ggplot2 aes facet_grid geom_point geom_tile ggplot labs scale_color_manual theme theme_bw
+#' @importFrom seriation seriate
 #'
 #' @export feature_heatmap
 #'
@@ -36,13 +38,14 @@
 #' # Return a heatmap with only the features selected first by LIME
 #' feature_heatmap(sine_lime_explain$explain, feature_num = 1)
 
-feature_heatmap <- function(explanations, feature_nums = NULL){
+feature_heatmap <- function(explanations, feature_nums = NULL,
+                            order_method = "obs_num"){
 
   # Checks
   checkmate::expect_data_frame(explanations)
   if (!is.null(feature_nums)) checkmate::expect_double(feature_nums)
 
-  # Organize the explanation data for plotting
+  # Prepare the explanation data for plotting
   heatmap_data <- explanations %>%
     select(sim_method, nbins, gower_pow, case, feature, feature_weight) %>%
     mutate(feature_magnitude = abs(feature_weight)) %>%
@@ -77,7 +80,41 @@ feature_heatmap <- function(explanations, feature_nums = NULL){
       mutate(feature_num = factor(feature_num),
              feature_num = paste("Feature", feature_num))
   }
-
+  
+  # If resquested, determine an order for the cases using seriation 
+  if (order_method == "obs_num") {
+    
+    # Create a new variable order that is the same as case
+    heatmap_data <- heatmap_data %>% mutate(case = as.numeric(case))
+    
+  } else {
+    
+    # Prepare features for distance calculation
+    # Columns: simulation method and feature 
+    # Row: case in data
+    # Cell: feature selected by lime
+    sim_features <- heatmap_data %>%
+      mutate(method = paste(sim_method, nbins, gower_pow)) %>%
+      select(-feature_weight, -feature_magnitude, -sim_method, 
+             -nbins, -gower_pow, -sim_method_plot,
+             -nbins_plot) %>%
+      pivot_wider(names_from = "method", 
+                  values_from = "feature")
+    
+    # Calculate the distances between colums and use seriate
+    # to order the cases
+    features_dist <- daisy(sim_features %>% 
+                             select(-case, -feature_num))
+    order_method = "Random"
+    features_ord <- seriate(features_dist, method = order_method)
+    order <- features_ord[[1]][1:dim(sim_features)[1]]
+    
+    # Add the order to the heatmap data
+    heatmap_data <- heatmap_data %>%
+      mutate(case = factor(case, levels = order))
+    
+  }
+    
   # Create the heatmap
   ggplot(heatmap_data, aes(x = nbins_plot, y = case, fill = feature)) +
     geom_tile() +

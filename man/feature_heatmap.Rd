@@ -4,7 +4,8 @@
 \alias{feature_heatmap}
 \title{Heatmap of LIME Selected Features}
 \usage{
-feature_heatmap(explanations, feature_nums = NULL)
+feature_heatmap(explanations, feature_nums = NULL,
+  order_method = "obs_num")
 }
 \arguments{
 \item{explanations}{Explain dataframe from the list returned by apply_lime.}

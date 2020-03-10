@@ -12,6 +12,7 @@ RoxygenNote: 6.1.1
 Imports:
   assertthat,
   checkmate,
+  cluster,
   dplyr,
   future,
   furrr,
@@ -19,6 +20,7 @@ Imports:
   lime,
   purrr,
   scales,
+  seriation,
   testthat (>= 2.1.0),
   tidyr
 Remotes: 
