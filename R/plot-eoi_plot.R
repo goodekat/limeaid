@@ -3,6 +3,8 @@
 #' @param explanation Rows from the LIME explanations associated 
 #'        with one prediction of interest
 #' @param alpha Value to use for alpha blending of the points
+#' @param title.opt Should a title be included that lists the 
+#'        simulation method and Gower exponent? (Default is TRUE.)
 #'        
 #' @importFrom dplyr mutate_at slice
 #' @export eoi_plot
@@ -32,7 +34,7 @@
 #' # Plot the simulated data
 #' eoi_plot(eoi)
 
-eoi_plot <- function(explanation, alpha = 1) {
+eoi_plot <- function(explanation, alpha = 1, title.opt = TRUE) {
   
   # Extract the label associated with the explanation
   eoi_label = explanation$label[1]
@@ -59,7 +61,7 @@ eoi_plot <- function(explanation, alpha = 1) {
     slice(1) %>%
     pull(perms_raw) %>%
     as.data.frame() %>%
-    select(eoi_features) %>%
+    select(all_of(eoi_features)) %>%
     mutate(complex_pred = complex_pred %>% pull(all_of(eoi_label)),
            obs = 1:n())
   
@@ -97,14 +99,14 @@ eoi_plot <- function(explanation, alpha = 1) {
     })
   
   # Create the plot
-  ggplot() + 
+  plot <- ggplot() + 
     geom_point(data = sim_data_plot,
                mapping =  aes(x = v2, y = v1, color = complex_pred),
                alpha = alpha) + 
     geom_point(data = poi_data_plot %>% 
                  mutate(shape = "Prediction \nof Interest"), 
-               mapping = aes(x = v1, 
-                             y = v2, 
+               mapping = aes(x = v2, 
+                             y = v1, 
                              fill = complex_pred, 
                              shape = shape),
                color = "black",
@@ -126,5 +128,22 @@ eoi_plot <- function(explanation, alpha = 1) {
          shape = "") + 
     guides(shape = guide_legend(order = 1),
            fill = FALSE)
+  
+  if (title.opt == TRUE) {
+    plot + 
+      labs(title = ifelse(is.na(explanation$nbins),
+                          paste0("Simulation Method: ", 
+                                 stringr::str_replace(explanation$sim_method[1], "_", " "), 
+                                 "\nGower Exponent:", 
+                                 explanation$gower_pow[1]), 
+                          paste0("Simulation Method: ", 
+                                 explanation$nbins[1], 
+                                 " ", 
+                                 stringr::str_replace(explanation$sim_method[1], "_", " "), 
+                                 "\nGower Exponent: ", 
+                                 explanation$gower_pow[1])))
+  } else {
+    plot
+  }
 
 }

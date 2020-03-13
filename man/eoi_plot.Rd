@@ -4,13 +4,16 @@
 \alias{eoi_plot}
 \title{Visualize the explanation of interest (eoi) and LIME simulated data}
 \usage{
-eoi_plot(explanation, alpha = 1)
+eoi_plot(explanation, alpha = 1, title.opt = TRUE)
 }
 \arguments{
 \item{explanation}{Rows from the LIME explanations associated 
 with one prediction of interest}
 
 \item{alpha}{Value to use for alpha blending of the points}
+
+\item{title.opt}{Should a title be included that lists the 
+simulation method and Gower exponent? (Default is TRUE.)}
 }
 \description{
 Visualize the explanation of interest (eoi) and LIME simulated data
