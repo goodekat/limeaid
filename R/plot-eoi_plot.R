@@ -78,7 +78,9 @@ eoi_plot <- function(explanation, alpha = 1, title.opt = TRUE) {
                  v2 = sim_data %>% pull(feature_pairs[row,2]),
                  complex_pred = sim_data$complex_pred) %>%
         mutate_at(.vars = c("f1", "f2"), .funs = as.character)
-    })
+    }) %>%
+    mutate(f1 = factor(f1, levels = unique(feature_pairs[,1])),
+           f2 = factor(f2, levels = unique(feature_pairs[,2])))
   
   # Create a dataframe with the prediction of interest's 
   # observed feature values
@@ -96,7 +98,9 @@ eoi_plot <- function(explanation, alpha = 1, title.opt = TRUE) {
                  v2 = poi_data %>% pull(feature_pairs[row,2]),
                  complex_pred = explanation$label_prob[1]) %>%
         mutate_at(.vars = c("f1", "f2"), .funs = as.character)
-    })
+    }) %>%
+    mutate(f1 = factor(f1, levels = unique(feature_pairs[,1])),
+           f2 = factor(f2, levels = unique(feature_pairs[,2])))
   
   # Create the plot
   plot <- ggplot() + 

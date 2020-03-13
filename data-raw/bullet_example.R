@@ -2,6 +2,9 @@
 bullet_train <- read.csv("../data/hamby173and252_train.csv")
 bullet_test <- read.csv("../data/hamby224_test.csv")
 
+# Extract the features and order them based on feature importance
+bullet_features <- rownames(bulletxtrctr::rtrees$importance)
+
 # Apply LIME to two cases with the permutations returned
 bullet_lime_explain_perms <- apply_lime(
   train = bullet_train %>% select(all_of(bullet_features)),
