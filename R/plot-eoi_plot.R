@@ -92,7 +92,7 @@ eoi_plot <- function(explanation, alpha = 1) {
                  f2 = as.character(feature_pairs[row,2]),
                  v1 = poi_data %>% pull(feature_pairs[row,1]),
                  v2 = poi_data %>% pull(feature_pairs[row,2]),
-                 complex_pred = eoi$label_prob[1]) %>%
+                 complex_pred = explanation$label_prob[1]) %>%
         mutate_at(.vars = c("f1", "f2"), .funs = as.character)
     })
   
