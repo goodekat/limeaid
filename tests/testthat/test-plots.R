@@ -22,6 +22,7 @@ iris_lime_explain <- apply_lime(train = iris_train,
                                 sim_method = c('quantile_bins',
                                                'kernel_density'),
                                 nbins = 2:3,
+                                return_perms = TRUE,
                                 gower_pow = c(0.5, 1),
                                 seed = 20190914)
 
@@ -51,4 +52,11 @@ test_that("metric_plot", {
   
 })
 
-
+test_that("eoi_plot", {
+  
+  # Basic perm plot
+  eoip <- eoi_plot(iris_lime_explain$explain[1:2,], alpha = 0.5)
+  vdiffr::expect_doppelganger(title = "Explanation Plot", 
+                              fig = eoip)
+  
+})
