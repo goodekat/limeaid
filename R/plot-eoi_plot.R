@@ -2,11 +2,15 @@
 #' 
 #' @param explanation Rows from the LIME explanations associated 
 #'        with one prediction of interest
+#' @param bins Should lines indicating the bins used by LIME be included? 
+#'        Only applicable is sim_method is equal to "quantile_bins" or 
+#'        "equal_bins". (Default is TRUE.)
 #' @param alpha Value to use for alpha blending of the points
 #' @param title.opt Should a title be included that lists the 
 #'        simulation method and Gower exponent? (Default is TRUE.)
 #'        
 #' @importFrom dplyr mutate_at slice
+#' @importFrom ggplot2 element_rect geom_hline geom_vline guides guide_legend scale_color_gradient2 scale_shape_manual
 #' @export eoi_plot
 #' 
 #' @examples 
@@ -31,10 +35,10 @@
 #' # of interest (the first observation in the test data) 
 #' eoi <- sine_lime_explain$explain[1:2,]
 #' 
-#' # Plot the simulated data
+#' # Plot the explanation of interest
 #' eoi_plot(eoi)
 
-eoi_plot <- function(explanation, alpha = 1, title.opt = TRUE) {
+eoi_plot <- function(explanation, bins = TRUE, alpha = 1, title.opt = TRUE) {
   
   # Extract the label associated with the explanation
   eoi_label = explanation$label[1]
@@ -42,8 +46,8 @@ eoi_plot <- function(explanation, alpha = 1, title.opt = TRUE) {
   # Extract the predictions from the complex model associated
   # with the simulated data values from 
   complex_pred = explanation %>%
-    slice(1) %>%
-    pull(perms_pred_complex) %>%
+    dplyr::slice(1) %>%
+    dplyr::pull(perms_pred_complex) %>%
     as.data.frame()
   
   # If label was a number, then extract the column differently
@@ -58,11 +62,12 @@ eoi_plot <- function(explanation, alpha = 1, title.opt = TRUE) {
   # Create a dataset with the simulated features and their 
   # predictions from the complex model
   sim_data <- explanation %>% 
-    slice(1) %>%
-    pull(perms_raw) %>%
+    dplyr::slice(1) %>%
+    dplyr::pull(perms_raw) %>%
     as.data.frame() %>%
-    select(all_of(eoi_features)) %>%
-    mutate(complex_pred = complex_pred %>% pull(all_of(eoi_label)),
+    dplyr::select(all_of(eoi_features)) %>%
+    dplyr::mutate(complex_pred = complex_pred %>% 
+                    dplyr::pull(tidyselect::all_of(eoi_label)),
            obs = 1:n())
   
   # Create pairs of features to use in plot
@@ -77,16 +82,16 @@ eoi_plot <- function(explanation, alpha = 1, title.opt = TRUE) {
                  v1 = sim_data %>% pull(feature_pairs[row,1]),
                  v2 = sim_data %>% pull(feature_pairs[row,2]),
                  complex_pred = sim_data$complex_pred) %>%
-        mutate_at(.vars = c("f1", "f2"), .funs = as.character)
+        dplyr::mutate_at(.vars = c("f1", "f2"), .funs = as.character)
     }) %>%
-    mutate(f1 = factor(f1, levels = unique(feature_pairs[,1])),
-           f2 = factor(f2, levels = unique(feature_pairs[,2])))
+    dplyr::mutate(f1 = factor(f1, levels = unique(feature_pairs[,1])),
+                  f2 = factor(f2, levels = unique(feature_pairs[,2])))
   
   # Create a dataframe with the prediction of interest's 
   # observed feature values
   poi_data <- data.frame(feature = explanation$feature,
                          value = explanation$feature_value) %>%
-    pivot_wider(names_from = "feature", values_from = "value")
+    tidyr::pivot_wider(names_from = "feature", values_from = "value")
   
   # Create data for plotting
   poi_data_plot <- purrr::map_df(
@@ -97,10 +102,46 @@ eoi_plot <- function(explanation, alpha = 1, title.opt = TRUE) {
                  v1 = poi_data %>% pull(feature_pairs[row,1]),
                  v2 = poi_data %>% pull(feature_pairs[row,2]),
                  complex_pred = explanation$label_prob[1]) %>%
-        mutate_at(.vars = c("f1", "f2"), .funs = as.character)
+        dplyr::mutate_at(.vars = c("f1", "f2"), .funs = as.character)
     }) %>%
-    mutate(f1 = factor(f1, levels = unique(feature_pairs[,1])),
-           f2 = factor(f2, levels = unique(feature_pairs[,2])))
+    dplyr::mutate(f1 = factor(f1, levels = unique(feature_pairs[,1])),
+                  f2 = factor(f2, levels = unique(feature_pairs[,2])))
+  
+  # Create bin data if requested and appropriate
+  if (explanation$sim_method[1] %in% c("quantile_bins", "equal_bins") & bins == TRUE) {
+    
+    # Extract the bin bounds
+    bin_bounds <- suppressWarnings(
+      extract_bounds(feature = explanation$feature, 
+                     feature_desc = explanation$feature_desc)) %>%
+      dplyr::mutate_at(.vars = c("lower", "upper"), 
+                       .funs = as.character) %>%
+      tidyr::pivot_longer(names_to = "bound", 
+                          values_to = "value", 
+                          lower:upper) %>%
+      tidyr::pivot_wider(names_from = "feature",
+                         values_from = "value")
+    
+    # Create bin data for plotting
+    bin_data_plot <- purrr::map_df(
+      .x = 1:nrow(feature_pairs),
+      .f = function(row) {
+        data.frame(f1 = as.character(feature_pairs[row,1]),
+                   f2 = as.character(feature_pairs[row,2]),
+                   y = bin_bounds %>% pull(feature_pairs[row,1]),
+                   x = bin_bounds %>% pull(feature_pairs[row,2])) %>%
+          dplyr::mutate_at(.vars = c("f1", "f2"), 
+                           .funs = as.character) %>%
+          dplyr::mutate_at(.vars = c("y", "x"), 
+                           .funs = function(val) as.numeric(as.character(val))) %>%
+          dplyr::mutate(y = ifelse(y == -Inf | y == Inf, NA, y),
+                        x = ifelse(x == -Inf | x == Inf, NA, x))
+      }) %>%
+      dplyr::mutate(f1 = factor(f1, levels = unique(feature_pairs[,1])),
+                    f2 = factor(f2, levels = unique(feature_pairs[,2])))
+    
+  }
+  
   
   # Create the plot
   plot <- ggplot() + 
@@ -133,17 +174,27 @@ eoi_plot <- function(explanation, alpha = 1, title.opt = TRUE) {
     guides(shape = guide_legend(order = 1),
            fill = FALSE)
   
+  # Add the bins to the plot if requested
+  if (explanation$sim_method[1] %in% c("quantile_bins", "equal_bins") & bins == TRUE) {
+    plot <- plot + 
+      geom_vline(data = bin_data_plot %>% select(-y) %>% na.omit(),
+                 mapping = aes(xintercept = x)) +
+      geom_hline(data = bin_data_plot %>% select(-x) %>% na.omit(),
+                 mapping = aes(yintercept = y))
+  }
+  
+  # Add a title to the plot if requested
   if (title.opt == TRUE) {
     plot + 
       labs(title = ifelse(is.na(explanation$nbins),
                           paste0("Simulation Method: ", 
-                                 stringr::str_replace(explanation$sim_method[1], "_", " "), 
+                                 explanation$sim_method[1], 
                                  "\nGower Exponent:", 
                                  explanation$gower_pow[1]), 
                           paste0("Simulation Method: ", 
                                  explanation$nbins[1], 
                                  " ", 
-                                 stringr::str_replace(explanation$sim_method[1], "_", " "), 
+                                 explanation$sim_method[1], 
                                  "\nGower Exponent: ", 
                                  explanation$gower_pow[1])))
   } else {

@@ -36,3 +36,24 @@ eoi_plot(bullet_explain_perms[13:15,])
 eoi_plot(bullet_explain_perms[16:18,])
 eoi_plot(bullet_explain_perms[19:21,])
 eoi_plot(bullet_explain_perms[22:24,])
+
+feature_desc = bullet_explain_perms$feature_desc[1:11]
+
+bin_extrctr <- function(feature_desc) {
+  data.frame(feature_desc = feature_desc) %>%
+    tidyr::separate(feature_desc, c("other", "upper"), sep = " <= ") %>%
+    tidyr::separate(other, c("lower", "feature2"), sep = " < ") %>%
+    mutate(upper = ifelse(is.na(upper), "Inf", upper)) %>%
+    select(-feature2) %>%
+    mutate_at(.vars = c("lower", "upper"), .funs = as.numeric) %>%
+    mutate(lower = ifelse(is.na(lower), "-Inf", lower))
+}
+  
+
+
+
+
+
+
+
+
