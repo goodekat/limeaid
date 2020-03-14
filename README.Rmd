@@ -7,7 +7,7 @@ always_allow_html: yes
 knitr::opts_chunk$set(echo = TRUE, message = FALSE)
 ```
 
-# limeaid <img align="right" width="150" height="175" src="README_files/limeaid-sticker.png">
+# limeaid <img align="right" width="150" height="175" src="README_files/limeaid-sticker2.png">
 
 🚧 under construction 🚧  
 
