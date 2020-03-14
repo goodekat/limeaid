@@ -82,3 +82,6 @@ sticker2 <- sticker(
 )
 
 print(sticker2)
+
+ggplot2::ggsave(filename = "./README_files/limeaid-sticker2.png", 
+                plot = sticker2, width = 4, height = 4)
