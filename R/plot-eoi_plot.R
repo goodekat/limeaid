@@ -187,11 +187,15 @@ eoi_plot <- function(explanation, bins = TRUE, alpha = 1, title.opt = TRUE) {
   if (title.opt == TRUE) {
     plot + 
       labs(title = ifelse(is.na(explanation$nbins),
-                          paste0("Simulation Method: ", 
+                          paste0("Case:" ,
+                                 explanation$case[1],
+                                 "\nSimulation Method: ", 
                                  explanation$sim_method[1], 
                                  "\nGower Exponent:", 
                                  explanation$gower_pow[1]), 
-                          paste0("Simulation Method: ", 
+                          paste0("Case:" ,
+                                 explanation$case[1],
+                                 "\nSimulation Method: ", 
                                  explanation$nbins[1], 
                                  " ", 
                                  explanation$sim_method[1], 
