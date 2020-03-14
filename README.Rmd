@@ -1,17 +1,24 @@
+---
+output: rmarkdown::github_document
+always_allow_html: yes
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```
 
 # limeaid
 
-🚧 under construction 🚧
+🚧 under construction 🚧  
 
-limeaid is an R package for assessing explanations created using the R
-package [lime](https://lime.data-imaginist.com/).
+limeaid is an R package for assessing explanations created using the R package [lime](https://lime.data-imaginist.com/).
 
-``` r
+```{r eval = FALSE}
 # Installation instructions 
 devtools::install_github("goodekat/limeaid")
 ```
 
-``` r
+```{r}
 library(cowplot)
 library(lime)
 library(limeaid)
@@ -44,31 +51,23 @@ lime_applied <- apply_lime(train = iris_train,
 explanations <- lime_applied$explain
 ```
 
-``` r
+```{r fig.width = 10, fig.height = 4}
 # Create a heatmap of the features chosen
 feature_heatmap(explanations)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
-
-``` r
+```{r fig.width = 10, fig.height = 4}
 # Create a plot of metrics for comparing the lime implementations
 metric_plot(explanations)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
-
-``` r
+```{r fig.width = 15, fig.height = 4}
 # Plots of several explanations of interest (2-4 quantile bins)
 plot_grid(eoi_plot(explanations[1:2,]),
           eoi_plot(explanations[11:12,]),
           eoi_plot(explanations[21:22,]),
           nrow = 1)
-```
 
-![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
-
-``` r
 # Plots of several explanations of interest (2-4 equal bins)
 plot_grid(eoi_plot(explanations[31:32,]),
           eoi_plot(explanations[41:42,]),
@@ -76,11 +75,7 @@ plot_grid(eoi_plot(explanations[31:32,]),
           nrow = 1)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
-
-``` r
+```{r fig.width = 5, fig.height = 4}
 # Plots of an explanation of interest (kernel density)
 eoi_plot(explanations[121:122,])
 ```
-
-![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
