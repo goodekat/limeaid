@@ -29,13 +29,6 @@ sticker1 <- sticker(
   h_color = "#00ABCA",
   h_size = 2,
   
-  # url
-  url = "https://goodekat.github.io/limeaid/",
-  u_size = 1,
-  u_family = "sans",
-  u_color = "black",
-  u_y = 0.09,
-  
   # save sticker
   filename = "./inst/limeaid-sticker1.png"
   
@@ -69,13 +62,6 @@ sticker2 <- sticker(
   h_color = "#00ABCA",
   h_size = 2,
   
-  # url
-  url = "https://goodekat.github.io/limeaid/",
-  u_size = 1,
-  u_family = "sans",
-  u_color = "black",
-  u_y = 0.09,
-  
   # save sticker
   filename = "./inst/limeaid-sticker2.png"
   
@@ -85,3 +71,4 @@ print(sticker2)
 
 ggplot2::ggsave(filename = "./README_files/limeaid-sticker2.png", 
                 plot = sticker2, width = 4, height = 4)
+
