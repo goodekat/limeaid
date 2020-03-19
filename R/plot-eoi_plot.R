@@ -5,6 +5,8 @@
 #' @param bins Should lines indicating the bins used by LIME be included? 
 #'        Only applicable is sim_method is equal to "quantile_bins" or 
 #'        "equal_bins". (Default is TRUE.)
+#' @param weights Should the size of the points represent the weight 
+#'        assigned by LIME? (Default is TRUE.)
 #' @param alpha Value to use for alpha blending of the points
 #' @param title.opt Should a title be included that lists the 
 #'        simulation method and Gower exponent? (Default is TRUE.)
@@ -38,17 +40,22 @@
 #' # Plot the explanation of interest
 #' eoi_plot(eoi)
 
-eoi_plot <- function(explanation, bins = TRUE, alpha = 1, title.opt = TRUE) {
+eoi_plot <- function(explanation, bins = TRUE, weights = TRUE, alpha = 1, title.opt = TRUE) {
   
   # Extract the label associated with the explanation
   eoi_label = explanation$label[1]
   
   # Extract the predictions from the complex model associated
-  # with the simulated data values from 
+  # with the simulated data values
   complex_pred = explanation %>%
     dplyr::slice(1) %>%
     dplyr::pull(perms_pred_complex) %>%
     as.data.frame()
+  
+  # Extract the weights associated with the simulated values
+  sim_weights = explanation %>%
+    dplyr::slice(1) %>%
+    dplyr::pull(weights)
   
   # If label was a number, then extract the column differently
   if (sum(names(complex_pred) == eoi_label) == 0) {
@@ -68,7 +75,8 @@ eoi_plot <- function(explanation, bins = TRUE, alpha = 1, title.opt = TRUE) {
     dplyr::select(all_of(eoi_features)) %>%
     dplyr::mutate(complex_pred = complex_pred %>% 
                     dplyr::pull(tidyselect::all_of(eoi_label)),
-           obs = 1:n())
+                  weights = sim_weights[[1]],
+                  obs = 1:n())
   
   # Create pairs of features to use in plot
   feature_pairs <- t(combn(eoi_features, 2))
@@ -81,7 +89,8 @@ eoi_plot <- function(explanation, bins = TRUE, alpha = 1, title.opt = TRUE) {
                  f2 = as.character(feature_pairs[row,2]),
                  v1 = sim_data %>% pull(feature_pairs[row,1]),
                  v2 = sim_data %>% pull(feature_pairs[row,2]),
-                 complex_pred = sim_data$complex_pred) %>%
+                 complex_pred = sim_data$complex_pred,
+                 weights = sim_data$weights) %>%
         dplyr::mutate_at(.vars = c("f1", "f2"), .funs = as.character)
     }) %>%
     dplyr::mutate(f1 = factor(f1, levels = unique(feature_pairs[,1])),
@@ -143,11 +152,21 @@ eoi_plot <- function(explanation, bins = TRUE, alpha = 1, title.opt = TRUE) {
   }
   
   
-  # Create the plot
-  plot <- ggplot() + 
-    geom_point(data = sim_data_plot,
-               mapping =  aes(x = v2, y = v1, color = complex_pred),
-               alpha = alpha) + 
+  # Start the creation of the plot (including weights based on option specified)
+  if (weights == TRUE) {
+    plot <- ggplot() + 
+      geom_point(data = sim_data_plot,
+                 mapping =  aes(x = v2, y = v1, color = complex_pred, size = weights),
+                 alpha = alpha)
+  } else {
+    plot <- ggplot() + 
+      geom_point(data = sim_data_plot,
+                 mapping =  aes(x = v2, y = v1, color = complex_pred),
+                 alpha = alpha)
+  }
+  
+  # Add poi data and additional structure to the plot
+  plot <- plot + 
     geom_point(data = poi_data_plot %>% 
                  mutate(shape = "Prediction \nof Interest"), 
                mapping = aes(x = v2, 
@@ -163,6 +182,7 @@ eoi_plot <- function(explanation, bins = TRUE, alpha = 1, title.opt = TRUE) {
                           midpoint = 0.5, 
                           limits = c(0, 1)) + 
     scale_shape_manual(values = 23) +
+    scale_size(range = c(0, 2)) +
     theme(strip.placement = "outside",
           strip.background = element_rect(color = "white", 
                                           fill = "white")) + 
@@ -170,7 +190,8 @@ eoi_plot <- function(explanation, bins = TRUE, alpha = 1, title.opt = TRUE) {
          y = "", 
          color = "Complex \nModel \nPrediction",
          fill = "Complex \nModel \nPrediction", 
-         shape = "") + 
+         shape = "",
+         size = "Weight") + 
     guides(shape = guide_legend(order = 1),
            fill = FALSE)
   

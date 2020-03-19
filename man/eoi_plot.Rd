@@ -4,7 +4,8 @@
 \alias{eoi_plot}
 \title{Visualize the explanation of interest (eoi) and LIME simulated data}
 \usage{
-eoi_plot(explanation, bins = TRUE, alpha = 1, title.opt = TRUE)
+eoi_plot(explanation, bins = TRUE, weights = TRUE, alpha = 1,
+  title.opt = TRUE)
 }
 \arguments{
 \item{explanation}{Rows from the LIME explanations associated 
@@ -13,6 +14,9 @@ with one prediction of interest}
 \item{bins}{Should lines indicating the bins used by LIME be included? 
 Only applicable is sim_method is equal to "quantile_bins" or 
 "equal_bins". (Default is TRUE.)}
+
+\item{weights}{Should the size of the points represent the weight 
+assigned by LIME? (Default is TRUE.)}
 
 \item{alpha}{Value to use for alpha blending of the points}
 
