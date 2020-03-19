@@ -106,7 +106,7 @@ metric_plot <- function(explanations, metrics = 'all'){
   # Add the additional layers to the plot
   plot + geom_point() +
     facet_grid(metric ~ sim_method_plot, scales = "free", space = "free_x") +
-    theme_bw() +
+    theme_grey() +
     labs(x = "Number of Bins",
          y = "Metric Value",
          color = "Rank") #+

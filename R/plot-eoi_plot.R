@@ -181,8 +181,13 @@ eoi_plot <- function(explanation, bins = TRUE, weights = TRUE, alpha = 1, title.
                           high = "steelblue", 
                           midpoint = 0.5, 
                           limits = c(0, 1)) + 
+    scale_fill_gradient2(low = "firebrick", 
+                         high = "steelblue", 
+                          midpoint = 0.5, 
+                          limits = c(0, 1)) + 
     scale_shape_manual(values = 23) +
     scale_size(range = c(0, 2)) +
+    theme_grey() +
     theme(strip.placement = "outside",
           strip.background = element_rect(color = "white", 
                                           fill = "white")) + 

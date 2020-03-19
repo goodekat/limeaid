@@ -183,7 +183,7 @@ feature_heatmap <- function(explanations, feature_nums = NULL,
     ggplot(heatmap_data, 
            aes(x = nbins_plot, y = case, fill = feature)) +
     geom_tile() +
-    theme_bw() +
+    theme_grey() +
     labs(x = "Number of Bins",
          y = "Prediction Number",
          fill = "Feature")

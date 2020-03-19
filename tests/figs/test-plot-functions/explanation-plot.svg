@@ -5037,7 +5037,7 @@
 <circle cx='587.45' cy='298.03' r='1.19pt' style='stroke-width: 0.71; stroke: #ECF1F7; stroke-opacity: 0.50; fill: #ECF1F7; fill-opacity: 0.50;' clip-path='url(#cpNDcuMjd8NjI4LjMwfDUyNS43NXw1MS4yOA==)' />
 <circle cx='258.93' cy='236.93' r='1.52pt' style='stroke-width: 0.71; stroke: #B22222; stroke-opacity: 0.50; fill: #B22222; fill-opacity: 0.50;' clip-path='url(#cpNDcuMjd8NjI4LjMwfDUyNS43NXw1MS4yOA==)' />
 <circle cx='320.78' cy='388.57' r='1.81pt' style='stroke-width: 0.71; stroke: #B22222; stroke-opacity: 0.50; fill: #B22222; fill-opacity: 0.50;' clip-path='url(#cpNDcuMjd8NjI4LjMwfDUyNS43NXw1MS4yOA==)' />
-<polygon points='95.63,482.09 102.77,474.96 95.63,467.83 88.50,474.96 ' style='stroke-width: 0.71; stroke: #000000; stroke-opacity: 0.80; fill: #336A98; fill-opacity: 0.80;' clip-path='url(#cpNDcuMjd8NjI4LjMwfDUyNS43NXw1MS4yOA==)' />
+<polygon points='95.63,482.09 102.77,474.96 95.63,467.83 88.50,474.96 ' style='stroke-width: 0.71; stroke: #000000; stroke-opacity: 0.80; fill: #B22222; fill-opacity: 0.80;' clip-path='url(#cpNDcuMjd8NjI4LjMwfDUyNS43NXw1MS4yOA==)' />
 <line x1='337.76' y1='525.75' x2='337.76' y2='51.28' style='stroke-width: 1.07; stroke-linecap: butt;' clip-path='url(#cpNDcuMjd8NjI4LjMwfDUyNS43NXw1MS4yOA==)' />
 <line x1='47.27' y1='255.61' x2='628.30' y2='255.61' style='stroke-width: 1.07; stroke-linecap: butt;' clip-path='url(#cpNDcuMjd8NjI4LjMwfDUyNS43NXw1MS4yOA==)' />
 <defs>
@@ -5126,7 +5126,7 @@
 <line x1='658.56' y1='388.55' x2='662.01' y2='388.55' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' clip-path='url(#cpMC4wMHw3MjAuMDB8NTc2LjAwfDAuMDA=)' />
 <line x1='658.56' y1='367.02' x2='662.01' y2='367.02' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' clip-path='url(#cpMC4wMHw3MjAuMDB8NTc2LjAwfDAuMDA=)' />
 <line x1='658.56' y1='345.49' x2='662.01' y2='345.49' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' clip-path='url(#cpMC4wMHw3MjAuMDB8NTc2LjAwfDAuMDA=)' />
-<g clip-path='url(#cpMC4wMHw3MjAuMDB8NTc2LjAwfDAuMDA=)'><text x='47.27' y='14.56' style='font-size: 13.20px; font-family: Liberation Sans;' textLength='41.77px' lengthAdjust='spacingAndGlyphs'>Case:1</text></g>
+<g clip-path='url(#cpMC4wMHw3MjAuMDB8NTc2LjAwfDAuMDA=)'><text x='47.27' y='14.56' style='font-size: 13.20px; font-family: Liberation Sans;' textLength='45.42px' lengthAdjust='spacingAndGlyphs'>Case: 1</text></g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8NTc2LjAwfDAuMDA=)'><text x='47.27' y='28.81' style='font-size: 13.20px; font-family: Liberation Sans;' textLength='205.16px' lengthAdjust='spacingAndGlyphs'>Simulation Method: 2 quantile_bins</text></g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8NTc2LjAwfDAuMDA=)'><text x='47.27' y='43.07' style='font-size: 13.20px; font-family: Liberation Sans;' textLength='123.80px' lengthAdjust='spacingAndGlyphs'>Gower Exponent: 0.5</text></g>
 </svg>
