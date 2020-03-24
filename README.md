@@ -1,5 +1,5 @@
 
-# limeaid <img align="right" width="150" height="150" src="README_files/limeaid-sticker2.png">
+# limeaid <img align="right" width="150" height="150" src="inst/limeaid-sticker2.png">
 
 🚧 under construction 🚧
 
@@ -23,6 +23,7 @@ iris_train <- iris[-(1:5), 1:4]
 iris_lab <- iris[[5]][-(1:5)]
 
 # Fit a random forest model to the iris training data
+set.seed(20200334)
 rf <- randomForest(Species ~ .,
                    data = cbind(iris_train, 
                                 Species = iris_lab))
@@ -38,7 +39,8 @@ lime_applied <- apply_lime(train = iris_train,
                                           'kernel_density'),
                            nbins = 2:4, 
                            gower_pow = c(1, 5),
-                           return_perms = TRUE)
+                           return_perms = TRUE, 
+                           seed = 20200334)
 
 # Extract the explanations from the apply_lime output
 explanations <- lime_applied$explain
