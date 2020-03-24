@@ -35,6 +35,7 @@ x_test = sine_data_test[1:5, c("x1", "x2", "x3")]
 rf <- randomForest::randomForest(x = x_train, y = y_train) 
 
 # Run apply_lime
+\dontrun{
 res <- apply_lime(train = x_train, 
                   test = x_test, 
                   model = rf,
@@ -49,6 +50,7 @@ compute_metrics(res$explain)
 
 # Return a table with only the MSEE values
 compute_metrics(res$explain, metrics = "msee")
+}
 }
 \references{
 Ribeiro, M. T., S. Singh, and C. Guestrin, 2016:

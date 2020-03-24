@@ -12,7 +12,7 @@ compute_fidelities <- function(explanations){
 # perturbations)
 fidelity_metric <- function(label, perms_pred_complex,
                             perms_pred_simple, weights){
-  p_complex <- perms_pred_complex %>% select(.data$label)
+  p_complex <- perms_pred_complex %>% select(label)
   p_explainer <- perms_pred_simple
   sum(weights * ((p_complex - p_explainer)^2))
 }

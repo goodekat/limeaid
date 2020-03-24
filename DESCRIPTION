@@ -35,4 +35,5 @@ Remotes:
   goodekat/lime
 Suggests:
   randomForest,
+  tibble,
   vdiffr

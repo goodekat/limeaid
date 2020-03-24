@@ -56,6 +56,7 @@
 #' rf <- randomForest::randomForest(x = x_train, y = y_train) 
 #' 
 #' # Run apply_lime
+#' \dontrun{
 #' res <- apply_lime(train = x_train, 
 #'                   test = x_test, 
 #'                   model = rf,
@@ -64,6 +65,7 @@
 #'                   sim_method = c('quantile_bins',
 #'                                  'kernel_density'),
 #'                   nbins = 2:3)
+#' }
 
 apply_lime <- function(train, test, model, sim_method, nbins = 4,
                        label, n_features, n_permutations = 5000,

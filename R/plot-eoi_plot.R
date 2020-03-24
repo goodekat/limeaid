@@ -27,6 +27,7 @@
 #' rf <- randomForest::randomForest(x = x_train, y = y_train)
 #'                        
 #' # Run apply_lime
+#' \dontrun{
 #' res <- apply_lime(train = x_train, 
 #'                   test = x_test, 
 #'                   model = rf,
@@ -43,6 +44,7 @@
 #' 
 #' # Plot the explanation of interest
 #' eoi_plot(eoi)
+#' }
 
 eoi_plot <- function(explanation, bins = TRUE, weights = TRUE, alpha = 1, title.opt = TRUE) {
   
@@ -63,7 +65,7 @@ eoi_plot <- function(explanation, bins = TRUE, weights = TRUE, alpha = 1, title.
   
   # If label was a number, then extract the column differently
   if (sum(names(complex_pred) == eoi_label) == 0) {
-    detected = stringr::str_detect(names(complex_pred), .data$eoi_label)
+    detected = stringr::str_detect(names(complex_pred), eoi_label)
     eoi_label = names(complex_pred)[detected]
   }
   

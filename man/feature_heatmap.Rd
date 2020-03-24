@@ -42,6 +42,7 @@ x_test = sine_data_test[1:5, c("x1", "x2", "x3")]
 rf <- randomForest::randomForest(x = x_train, y = y_train) 
 
 # Run apply_lime
+\dontrun{
 res <- apply_lime(train = x_train, 
                   test = x_test, 
                   model = rf,
@@ -56,4 +57,5 @@ feature_heatmap(res$explain)
 
 # Return a heatmap with only the features selected first by LIME
 feature_heatmap(res$explain, feature_num = 1)
+}
 }

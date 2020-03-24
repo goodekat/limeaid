@@ -40,6 +40,7 @@
 #' rf <- randomForest::randomForest(x = x_train, y = y_train) 
 #' 
 #' # Run apply_lime
+#' \dontrun{
 #' res <- apply_lime(train = x_train, 
 #'                   test = x_test, 
 #'                   model = rf,
@@ -54,6 +55,7 @@
 #'
 #' # Return a heatmap with only the features selected first by LIME
 #' feature_heatmap(res$explain, feature_num = 1)
+#' }
 
 feature_heatmap <- function(explanations, feature_nums = NULL,
                             facet_var = NULL, 

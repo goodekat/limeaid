@@ -37,6 +37,7 @@ x_test = sine_data_test[1:5, c("x1", "x2", "x3")]
 rf <- randomForest::randomForest(x = x_train, y = y_train)
                        
 # Run apply_lime
+\dontrun{
 res <- apply_lime(train = x_train, 
                   test = x_test, 
                   model = rf,
@@ -53,4 +54,5 @@ eoi <- res$explain[1:2,]
 
 # Plot the explanation of interest
 eoi_plot(eoi)
+}
 }
