@@ -21,10 +21,11 @@ will be used to facet the heatmap. (NULL by default)}
 
 \item{order_method}{Method for ordering the predictions: either
 "obs_num" which uses the order from the explanation
-dataframe (default), "feature_arrange" which sorts by 
-the factors within a feature, or one of the options from 
-the package seriation (methods currently implemented are 
-"ARSA", "GW", "HC", "OLO", "Random", "TSP")}
+dataframe (default), "sort_features" which sorts by 
+the factors within a feature using the dplyr "arrange" function, 
+or one of the options from the package seriation for matrices 
+(see seriation::list_seriation_methods("matrix") for the options
+available.)}
 }
 \description{
 Creates a heatmap of the features selected by lime for all

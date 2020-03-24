@@ -419,5 +419,5 @@
 <rect x='671.25' y='317.90' width='17.00' height='17.00' style='stroke-width: 0.21; stroke: none; stroke-linecap: square; stroke-linejoin: miter; fill: #00BFC4;' clip-path='url(#cpMC4wMHw3MjAuMDB8NTc2LjAwfDAuMDA=)' />
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8NTc2LjAwfDAuMDA=)'><text x='693.86' y='312.14' style='font-size: 8.80px; font-family: Liberation Sans;' textLength='9.30px' lengthAdjust='spacingAndGlyphs'>x1</text></g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8NTc2LjAwfDAuMDA=)'><text x='693.86' y='329.42' style='font-size: 8.80px; font-family: Liberation Sans;' textLength='9.30px' lengthAdjust='spacingAndGlyphs'>x2</text></g>
-<g clip-path='url(#cpMC4wMHw3MjAuMDB8NTc2LjAwfDAuMDA=)'><text x='32.78' y='14.56' style='font-size: 13.20px; font-family: Liberation Sans;' textLength='87.19px' lengthAdjust='spacingAndGlyphs'>Basic heatmap</text></g>
+<g clip-path='url(#cpMC4wMHw3MjAuMDB8NTc2LjAwfDAuMDA=)'><text x='32.78' y='14.56' style='font-size: 13.20px; font-family: Liberation Sans;' textLength='178.02px' lengthAdjust='spacingAndGlyphs'>Heatmap ordered by obs_num</text></g>
 </svg>

@@ -52,6 +52,13 @@ feature_heatmap(explanations)
 ![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 ``` r
+# Create another heatmap but order the features using a seriation method
+feature_heatmap(explanations, order_method = "PCA")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
+
+``` r
 # Create a plot of metrics for comparing the lime implementations
 metric_plot(explanations)
 ```

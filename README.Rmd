@@ -54,6 +54,9 @@ explanations <- lime_applied$explain
 ```{r fig.width = 10, fig.height = 4}
 # Create a heatmap of the features chosen
 feature_heatmap(explanations)
+
+# Create another heatmap but order the features using a seriation method
+feature_heatmap(explanations, order_method = "PCA")
 ```
 
 ```{r fig.width = 10, fig.height = 4}

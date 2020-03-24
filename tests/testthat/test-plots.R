@@ -30,12 +30,21 @@ le <- apply_lime(train = x_train,
 test_that("feature_heatmap", {
   
   # Basic feature heatmap
-  fh <- feature_heatmap(le$explain)
-  vdiffr::expect_doppelganger(title = "Basic Heatmap", fig = fh)
+  fh1 <- feature_heatmap(le$explain)
+  vdiffr::expect_doppelganger(title = "Basic heatmap", fig = fh1)
   
-  # Heatmap with feature_nums specified
-  fh_fnumb <- feature_heatmap(le$explain, feature_nums = 1)
-  vdiffr::expect_doppelganger(title = "feature_nums = 1 Heatmap ", fig = fh_fnumb)
+  # Heatmap with feature_nums and facet_var specified
+  fh2 <- feature_heatmap(le$explain, feature_nums = 1, facet_var = y_test)
+  vdiffr::expect_doppelganger(title = "Heatmap with feature_nums and facet_var", fig = fh2)
+  
+  # Heatmaps with orderings
+  fh3 <- feature_heatmap(le$explain, order_method = "obs_num")
+  vdiffr::expect_doppelganger(title = "Heatmap ordered by obs_num", fig = fh3)
+  fh4 <- feature_heatmap(le$explain, order_method = "sort_features")
+  vdiffr::expect_doppelganger(title = "Heatmap ordered by sort_features", fig = fh4)
+  fh5 <- feature_heatmap(le$explain, order_method = "PCA")
+  vdiffr::expect_doppelganger(title = "Heatmap ordered by PCA", fig = fh5)
+  testthat::expect_error(feature_heatmap(le$explain, order_method = "other"))
 
 })
 
