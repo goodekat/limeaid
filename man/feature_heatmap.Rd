@@ -33,25 +33,27 @@ LIME implementations.
 }
 \examples{
 
-# Create Random Forest model on the sine data
-rfsine <- caret::train(x = sine_data_train[c("x1", "x2", "x3")],
-                       y = sine_data_train$y,
-                       method = "rf")
+# Prepare training and testing data
+x_train = sine_data_train[c("x1", "x2", "x3")]
+y_train = factor(sine_data_train$y)
+x_test = sine_data_test[1:5, c("x1", "x2", "x3")]
 
-# Apply lime several implementations of LIME
-sine_lime_explain <-
-   apply_lime(train = sine_data_train[c("x1", "x2", "x3")],
-              test = sine_data_test[c("x1", "x2", "x3")],
-              model = rfsine,
-              label = "1",
-              n_features = 2,
-              sim_method = c('quantile_bins', 'kernel_density'),
-              nbins = c(3, 4),
-              seed = 20190914)
+# Fit a random forest model
+rf <- randomForest::randomForest(x = x_train, y = y_train) 
 
+# Run apply_lime
+res <- apply_lime(train = x_train, 
+                  test = x_test, 
+                  model = rf,
+                  label = "1",
+                  n_features = 2,
+                  sim_method = c('quantile_bins',
+                                 'kernel_density'),
+                  nbins = 2:3)
+                  
 # Plot heatmap of selected features across LIME implementations
-feature_heatmap(sine_lime_explain$explain)
+feature_heatmap(res$explain)
 
 # Return a heatmap with only the features selected first by LIME
-feature_heatmap(sine_lime_explain$explain, feature_num = 1)
+feature_heatmap(res$explain, feature_num = 1)
 }

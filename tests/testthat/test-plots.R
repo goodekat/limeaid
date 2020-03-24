@@ -2,40 +2,39 @@ context("test-plot_functions")
 
 ## Iris Data, Model, and LIME -----------------------------------------
 
-# Iris training and testing
-iris_test <- iris[1:5, 1:4]
-iris_train <- iris[-(1:5), 1:4]
-iris_lab <- iris[[5]][-(1:5)]
+# Prepare training and testing data
+x_train = sine_data_train[c("x1", "x2", "x3")]
+y_train = factor(sine_data_train$y)
+x_test = sine_data_test[1:5, c("x1", "x2", "x3")]
+y_test = factor(sine_data_test$y)[1:5]
 
-# Random forest model
+# Fit a random forest to the sine training data
 set.seed(573939903)
-model <- randomForest::randomForest(Species ~ .,
-                                    data = cbind(iris_train, 
-                                                 Species = iris_lab))
+rf <- randomForest::randomForest(x = x_train, y = y_train)
 
-# Run apply_lime on the iris data
-iris_lime_explain <- apply_lime(train = iris_train,
-                                test = iris_test,
-                                model = model,
-                                label = "virginica",
-                                n_features = 2,
-                                sim_method = c('quantile_bins',
-                                               'kernel_density'),
-                                nbins = 2:3,
-                                return_perms = TRUE,
-                                gower_pow = c(0.5, 1),
-                                seed = 20190914)
+# Run apply_lime
+le <- apply_lime(train = x_train,
+                 test = x_test,
+                 model = rf,
+                 label = "1",
+                 n_features = 2,
+                 sim_method = c('quantile_bins',
+                                'kernel_density'),
+                 nbins = 2:3,
+                 gower_pow = c(0.5, 1),
+                 return_perms = TRUE,
+                 seed = 20190914)
 
 ## Tests for Plotting Functions ---------------------------------------
 
 test_that("feature_heatmap", {
   
   # Basic feature heatmap
-  fh <- feature_heatmap(iris_lime_explain$explain)
+  fh <- feature_heatmap(le$explain)
   vdiffr::expect_doppelganger(title = "Basic Heatmap", fig = fh)
   
   # Heatmap with feature_nums specified
-  fh_fnumb <- feature_heatmap(iris_lime_explain$explain, feature_nums = 1)
+  fh_fnumb <- feature_heatmap(le$explain, feature_nums = 1)
   vdiffr::expect_doppelganger(title = "feature_nums = 1 Heatmap ", fig = fh_fnumb)
 
 })
@@ -43,20 +42,29 @@ test_that("feature_heatmap", {
 test_that("metric_plot", {
   
   # Basic metric plot
-  mp <- metric_plot(iris_lime_explain$explain)
+  mp <- metric_plot(le$explain)
   vdiffr::expect_doppelganger(title = "Basic Metric Plot", fig = mp)
   
   # Metric plot with with metrics specified
-  mp_met <- metric_plot(iris_lime_explain$explain, metrics = "msee")
+  mp_met <- metric_plot(le$explain, metrics = "msee")
   vdiffr::expect_doppelganger(title = "metrics = 'MSEE' Metric Plot", fig = mp_met)
   
 })
 
 test_that("eoi_plot", {
   
-  # Basic perm plot
-  eoip <- eoi_plot(iris_lime_explain$explain[1:2,], alpha = 0.5)
+  # Basic eoi plot
+  eoip <- eoi_plot(explanation = le$explain[1:2,])
   vdiffr::expect_doppelganger(title = "Explanation Plot", 
                               fig = eoip)
+  
+  # eoi plot with all options
+  eoi_opt <- eoi_plot(explanation = le$explain[1:2,], 
+                      alpha = 0.5, 
+                      bins = FALSE, 
+                      weights = TRUE, 
+                      title.opt = FALSE)
+  vdiffr::expect_doppelganger(title = "Explanation Plot with Options", 
+                              fig = eoi_opt)
   
 })

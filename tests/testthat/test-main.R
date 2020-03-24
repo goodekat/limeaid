@@ -1,118 +1,85 @@
 context("test-main_functions")
 
-## Iris Data and Model ------------------------------------------------
+## Data and Model -----------------------------------------------------
 
-# Iris training and testing
-iris_test <- iris[1:5, 1:4]
-iris_train <- iris[-(1:5), 1:4]
-iris_lab <- iris[[5]][-(1:5)]
+# Prepare training and testing data
+x_train = sine_data_train[c("x1", "x2", "x3")]
+y_train = factor(sine_data_train$y)
+x_test = sine_data_test[1:5, c("x1", "x2", "x3")]
+y_test = factor(sine_data_test$y)[1:5]
 
-# Two versions of a random forest model
-model_caret <- caret::train(x = iris_train, y = iris_lab, method = "rf")
-model_randomForest <- 
-  randomForest::randomForest(Species ~ .,
-                             data = cbind(iris_train, 
-                                          Species = iris_lab))
+# Fit a random forest to the sine training data
+rf <- randomForest::randomForest(x = x_train, y = y_train)
 
 ## Applications of LIME -----------------------------------------------
 
-# Run apply_lime on the iris data
-iris_lime_explain <- apply_lime(train = iris_train,
-                                test = iris_test,
-                                model = model_caret,
-                                label = "virginica",
-                                n_features = 2,
-                                sim_method = c('quantile_bins',
-                                               'kernel_density'),
-                                nbins = 2:3,
-                                gower_pow = c(0.5, 1),
-                                seed = 20190914)
+# Run apply_lime
+le <- apply_lime(train = x_train,
+                 test = x_test,
+                 model = rf,
+                 label = "1",
+                 n_features = 2,
+                 sim_method = c('quantile_bins',
+                                'kernel_density'),
+                 nbins = 2:3,
+                 gower_pow = c(0.5, 1),
+                 seed = 20190914)
 
-# Run apply_lime on the iris data again to check see
-iris_lime_explain_copy <- apply_lime(train = iris_train,
-                                     test = iris_test,
-                                     model = model_caret,
-                                     label = "virginica",
-                                     n_features = 2,
-                                     sim_method = c('quantile_bins',
-                                                    'kernel_density'),
-                                     nbins = 2:3,
-                                     gower_pow = c(0.5, 1),
-                                     seed = 20190914)
+# Run apply_lime again
+le_copy <- apply_lime(train = x_train,
+                      test = x_test,
+                      model = rf,
+                      label = "1",
+                      n_features = 2,
+                      sim_method = c('quantile_bins',
+                                     'kernel_density'),
+                      nbins = 2:3,
+                      gower_pow = c(0.5, 1),
+                      seed = 20190914)
 
-# Run apply_lime on the iris data with the randomForest model
-iris_lime_explain_randomForest <- apply_lime(train = iris_train,
-                                test = iris_test,
-                                model = model_randomForest,
-                                label = "virginica",
-                                n_features = 2,
-                                sim_method = c('quantile_bins',
-                                               'kernel_density'),
-                                nbins = 2:3,
-                                seed = 20190914)
-
-# Run apply_lime on the iris data requesting that the simulated data be returned
-iris_lime_explain_perms <- apply_lime(train = iris_train,
-                                      test = iris_test,
-                                      model = model_caret,
-                                      label = "virginica",
-                                      n_features = 2,
-                                      sim_method = c('quantile_bins',
-                                                     'kernel_density'),
-                                      nbins = 2:3,
-                                      gower_pow = c(0.5, 1),
-                                      return_perms = TRUE,
-                                      seed = 20190914)
-
-# Run apply_lime on the iris data with all feature selection methods
-iris_lime_explain_fs <- apply_lime(train = iris_train,
-                                   test = iris_test,
-                                   model = model_caret,
-                                   label = "virginica",
-                                   n_features = 2,
-                                   sim_method = c('quantile_bins',
-                                                  'kernel_density'),
-                                   nbins = 2:3,
-                                   all_fs = TRUE,
-                                   label_fs = "versicolor",
-                                   seed = 20190914)
+# Run apply_lime with extra options specified 
+le_extra <- apply_lime(train = x_train,
+                       test = x_test,
+                       model = rf,
+                       label = "1",
+                       n_features = 2,
+                       sim_method = c('quantile_bins',
+                                      'kernel_density'),
+                       nbins = 2:3,
+                       gower_pow = c(0.5, 1),
+                       return_perms = TRUE,
+                       all_fs = TRUE,
+                       seed = 20190914)
 
 ## Comparisons of LIME ------------------------------------------------
 
 # Compute metrics
-metrics <- compute_metrics(iris_lime_explain$explain)
-metrics_sub <- compute_metrics(iris_lime_explain$explain,
-                               metrics = c("msee", "ave_fidelity"))
+metrics <- compute_metrics(le$explain)
+metrics_sub <- 
+  compute_metrics(le$explain, metrics = c("msee", "ave_fidelity"))
 
 ## Tests of Main Functions --------------------------------------------
 
 # Test that apply_lime produces output with the correct structure
 test_that("apply_lime", {
 
-  # Check the structure is correct
-  testthat::expect_type(iris_lime_explain$lime, "list")
-  testthat::expect_true(tibble::is_tibble(iris_lime_explain$explain))
-  testthat::expect_type(iris_lime_explain_fs$lime, "list")
-  testthat::expect_true(tibble::is_tibble(iris_lime_explain_fs$explain))
-  testthat::expect_type(iris_lime_explain_perms$lime, "list")
-  testthat::expect_true(tibble::is_tibble(iris_lime_explain_perms$explain))
+  # Check the structures are correct
+  testthat::expect_type(le$lime, "list")
+  testthat::expect_true(tibble::is_tibble(le$explain))
+  testthat::expect_type(le_extra$lime, "list")
+  testthat::expect_true(tibble::is_tibble(le_extra$explain))
   
-  # Check that the implementation with the randomForest model ran
-  testthat::expect_type(iris_lime_explain_randomForest, "list")
-
   # Check that the lengths and dimensions are correct
-  testthat::expect_equal(length(iris_lime_explain$lime), 6)
-  testthat::expect_equal(length(iris_lime_explain_fs$lime), 3)
-  testthat::expect_equal(length(iris_lime_explain_perms$lime), 6)
-  testthat::expect_equal(dim(iris_lime_explain$explain), c(60, 18))
-  testthat::expect_equal(dim(iris_lime_explain_fs$explain), c(30, 22))
-  testthat::expect_equal(dim(iris_lime_explain_perms$explain), c(60, 23))
+  testthat::expect_equal(length(le$lime), 6)
+  testthat::expect_equal(dim(le$explain), c(60, 18))
+  testthat::expect_equal(length(le_extra$lime), 6)
+  testthat::expect_equal(dim(le_extra$explain), c(60, 27))
   
   # Check that the seed is working
-  testthat::expect_true(all.equal(iris_lime_explain$lime, 
-                                  iris_lime_explain_copy$lime))
-  testthat::expect_true(identical(iris_lime_explain$explain$prediction, 
-                                  iris_lime_explain_copy$explain$prediction))
+  testthat::expect_true(all.equal(le$lime, 
+                                  le_copy$lime))
+  testthat::expect_true(identical(le$explain$prediction, 
+                                  le_copy$explain$prediction))
   
 })
 

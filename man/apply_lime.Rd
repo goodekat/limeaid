@@ -49,17 +49,11 @@ the Gower distance.}
 should be applied for an implementation of LIME to see how
 the features selected varies within a LIME implemenation.
 Note that the LIME results returned will correspond to the 
-method specified in the \code{feature_selection} option. 
-This option must be used with  the \code{label_fs} option 
-to specify the label to use for feature selection. (Only 
-one label is allowed for now.)}
+method specified in the \code{feature_selection} option.}
 
 \item{return_perms}{Should the simulated dataset (permutations) be 
 returned for all of the observations in the test datatset and
 LIME implementations? Default is FALSE.}
-
-\item{label_fs}{The response label to use when all feature
-selection methods are implemented.}
 
 \item{seed}{Number to be used as a seed (if desired).}
 }
@@ -68,19 +62,21 @@ Applies LIME with the specified tunning parameter options.
 }
 \examples{
 
-# Create Random Forest model on the sine data
-rfsine <- caret::train(x = sine_data_train[c("x1", "x2", "x3")],
-                       y = sine_data_train$y,
-                       method = "rf")
+# Prepare training and testing data
+x_train = sine_data_train[c("x1", "x2", "x3")]
+y_train = factor(sine_data_train$y)
+x_test = sine_data_test[1:5, c("x1", "x2", "x3")]
 
-# Apply lime
-sine_lime_explain <-
-   apply_lime(train = sine_data_train[c("x1", "x2", "x3")],
-              test = sine_data_test[c("x1", "x2", "x3")],
-              model = rfsine,
-              label = "1",
-              n_features = 2,
-              sim_method = c('quantile_bins', 'kernel_density'),
-              nbins = c(3, 4),
-              seed = 20190914)
+# Fit a random forest model
+rf <- randomForest::randomForest(x = x_train, y = y_train) 
+
+# Run apply_lime
+res <- apply_lime(train = x_train, 
+                  test = x_test, 
+                  model = rf,
+                  label = "1",
+                  n_features = 2,
+                  sim_method = c('quantile_bins',
+                                 'kernel_density'),
+                  nbins = 2:3)
 }

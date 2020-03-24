@@ -4,11 +4,15 @@ Title: Diagnose LIME Explanations
 Version: 0.0.1
 Author: Katherine Goode
 Maintainer: Katherine Goode <kgoode@iastate.edu>
-Description: Assess explanations produced by LIME using diagnostic plots
-License: MIT
+Description: limeaid contains functions for the assessment of explanations 
+             produced by the lime R package. LIME can easily be applied 
+             with multiple tuning parameters, and diagnostics plots for 
+             assessing the explanations are available.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
+Depends: R (>= 2.10)
 Imports:
   assertthat,
   checkmate,
@@ -21,11 +25,13 @@ Imports:
   purrr,
   scales,
   seriation,
+  stringr,
   testthat (>= 2.1.0),
   tidyr,
-  tidyselect
+  tidyselect,
+  utils
 Remotes: 
   goodekat/lime
-Suggests: 
-  caret,
+Suggests:
+  randomForest,
   vdiffr

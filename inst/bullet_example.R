@@ -9,11 +9,11 @@ bullet_features <- rownames(bulletxtrctr::rtrees$importance)
 bullet_lime_explain_perms <- apply_lime(
   train = bullet_train %>% select(all_of(bullet_features)),
   test = bullet_test %>% 
-    filter(case %in% c(16, 20)) %>%
+    filter(case %in% c(325, 20)) %>%
     select(all_of(bullet_features)),
   model = bulletxtrctr::rtrees,
   label = as.character(TRUE),
-  n_features = 5,
+  n_features = 3,
   sim_method = c('quantile_bins', 'equal_bins', 'kernel_density', 'normal_approx'),
   nbins = 3,
   feature_select = "auto",
@@ -28,9 +28,9 @@ bullet_lime_explain_perms <- apply_lime(
 bullet_lime_perms <- bullet_lime_explain_perms$lime
 bullet_explain_perms <- bullet_lime_explain_perms$explain
 
-eoi_plot(bullet_explain_perms[1:5,])
-eoi_plot(bullet_explain_perms[6:10,])
-eoi_plot(bullet_explain_perms[21:25,])
+eoi_plot(bullet_explain_perms[1:3,])
+eoi_plot(bullet_explain_perms[4:6,])
+eoi_plot(bullet_explain_perms[7:9,])
 
 
 

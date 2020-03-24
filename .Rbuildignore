@@ -1,4 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-inst
 data-raw
+inst
+README.md
+README.Rmd
+README_files
