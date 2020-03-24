@@ -43,7 +43,11 @@ the simulated data. Default is 'gower'. Otherwise,
 'gower'.}
 
 \item{gower_pow}{Numeric vector of powers to use when computing 
-the Gower distance.}
+the Gower distance. (Note: If gower_pow is a vector with more 
+than one unique number, the simulated values will be reused 
+for an observation in the test data to compare explanations 
+across gower powers within the same set of other tuning
+parameters.)}
 
 \item{all_fs}{Indicates whether all feature selection methods
 should be applied for an implementation of LIME to see how

@@ -81,6 +81,23 @@ test_that("apply_lime", {
   testthat::expect_true(identical(le$explain$prediction, 
                                   le_copy$explain$prediction))
   
+  # Extract the explanations for one case of interest (same simulation
+  # method but different gower powers)
+  coi0.5 <- le_extra$explain %>% 
+    dplyr::filter(case == sine_data_test$case[1], 
+                  sim_method == 'quantile_bins', 
+                  nbins == 3, 
+                  gower_pow == 0.5)
+  coi1 <- le_extra$explain %>% 
+    dplyr::filter(case == sine_data_test$case[1], 
+                  sim_method == 'quantile_bins', 
+                  nbins == 3, 
+                  gower_pow == 1)
+  
+  # Check to make sure the simulated dataset match between the 
+  # two different gower powers
+  testthat::expect_true(identical(coi0.5$perms_raw[[1]], coi1$perms_raw[[1]]))
+  
 })
 
 # Test that compute_metrics produces output with the correct structure

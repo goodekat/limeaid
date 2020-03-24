@@ -24,7 +24,11 @@
 #' @param kernel_width Kernel width to use if \code{dist_fun} is not
 #'        'gower'.
 #' @param gower_pow Numeric vector of powers to use when computing 
-#'        the Gower distance.
+#'        the Gower distance. (Note: If gower_pow is a vector with more 
+#'        than one unique number, the simulated values will be reused 
+#'        for an observation in the test data to compare explanations 
+#'        across gower powers within the same set of other tuning
+#'        parameters.)
 #' @param return_perms Should the simulated dataset (permutations) be 
 #'        returned for all of the observations in the test datatset and
 #'        LIME implementations? Default is FALSE.
@@ -91,6 +95,9 @@ apply_lime <- function(train, test, model, sim_method, nbins = 4,
   }
   checkmate::expect_numeric(gower_pow)
   checkmate::expect_logical(all_fs)
+  
+  # Keep only unique gower_pow values
+  gower_pow <- unique(gower_pow)
   
   # Put the input options into a list
   inputs <- organize_inputs(sim_method, nbins, gower_pow) # helper

@@ -66,7 +66,7 @@ method2inputs <- function(sim_method){
 }
                
 organize_inputs <- function(sim_method, nbins, gower_pow){
-
+  
   # Create a dataframe with the bin based simulation methods
   bin_method = sim_method[!(sim_method %in% c("kernel_density", "normal_approx"))]
   bin_inputs = expand.grid(nbins, bin_method, gower_pow)
@@ -82,12 +82,23 @@ organize_inputs <- function(sim_method, nbins, gower_pow){
   # Join the simulation methods dataframes
   inputs <- rbind(bin_inputs, density_inputs)
   
-  # Add lime input variables
-  inputs <- inputs %>%
-    bind_cols(purrr::map_df(.x = inputs$sim_method, .f = method2inputs)) %>%
-    select(.data$bin_continuous, .data$quantile_bins, 
-           .data$nbins, .data$use_density, .data$gower_pow)
-
+  # Add lime input variables (and add a perm_seed if needed)
+  if (length(gower_pow) > 1) {
+    inputs <- inputs %>%
+      dplyr::group_by(.data$nbins, .data$sim_method) %>%
+      dplyr::mutate(perm_seed = sample(100000:999999, 1)) %>%
+      dplyr::ungroup() %>%
+      dplyr::bind_cols(purrr::map_df(.x = inputs$sim_method, .f = method2inputs)) %>%
+      dplyr::select(.data$bin_continuous, .data$quantile_bins, 
+                    .data$nbins, .data$use_density, .data$gower_pow,
+                    .data$perm_seed)
+  } else {
+    inputs <- inputs %>%
+      dplyr::bind_cols(purrr::map_df(.x = inputs$sim_method, .f = method2inputs)) %>%
+      dplyr::select(.data$bin_continuous, .data$quantile_bins, 
+                    .data$nbins, .data$use_density, .data$gower_pow)
+  }
+  
   # Return the inputs as a list
   return(as.list(inputs))
 

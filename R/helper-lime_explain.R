@@ -2,10 +2,11 @@
 # one set of input options
 
 lime_explain <- function(bin_continuous, quantile_bins, nbins,
-                         use_density, gower_pow, train, test, model, 
-                         label, n_features, feature_select,
-                         n_permutations, dist_fun, kernel_width,
-                         return_perms, all_fs, label_fs, seed){
+                         use_density, gower_pow, perm_seed = NULL,
+                         train, test, model, label, n_features, 
+                         feature_select, n_permutations, 
+                         dist_fun, kernel_width, return_perms,
+                         all_fs, label_fs, seed){
 
   # Apply the lime function
   set.seed(seed)
@@ -28,7 +29,8 @@ lime_explain <- function(bin_continuous, quantile_bins, nbins,
                            kernel_width = kernel_width,
                            gower_pow = gower_pow,
                            all_fs = all_fs,
-                           label_fs = label_fs) %>%
+                           label_fs = label_fs,
+                           perm_seed = perm_seed) %>%
     mutate(sim_method = inputs2method(bin_continuous = bin_continuous,
                                       quantile_bins = quantile_bins,
                                       use_density = use_density),
