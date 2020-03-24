@@ -67,52 +67,52 @@ metric_plot <- function(explanations, metrics = 'all'){
 
   # Prepare the data for the plot
   plot_data <- metric_data %>%
-    tidyr::pivot_longer(names_to = "metric", values_to = "value", ave_r2:ave_fidelity) %>%
-    filter(metric %in% metrics) %>%
-    mutate(metric = factor(metric),
-           nbins = factor(nbins),
-           metric = ifelse(metric == "ave_r2", "Average R2",
-                    ifelse(metric == "msee", "MSEE",
+    tidyr::pivot_longer(names_to = "metric", 
+                        values_to = "value", 
+                        .data$ave_r2:.data$ave_fidelity) %>%
+    filter(.data$metric %in% metrics) %>%
+    mutate(metric = factor(.data$metric),
+           nbins = factor(.data$nbins),
+           metric = ifelse(.data$metric == "ave_r2", "Average R2",
+                    ifelse(.data$metric == "msee", "MSEE",
                            "Average Fidelity")),
            sim_method =
-             ifelse(sim_method == "quantile_bins", "Quantile Bins",
-                    ifelse(sim_method == "equal_bins", "Equal Bins",
-                           ifelse(sim_method == "kernel_density", "Kernel",
+             ifelse(.data$sim_method == "quantile_bins", "Quantile Bins",
+                    ifelse(.data$sim_method == "equal_bins", "Equal Bins",
+                           ifelse(.data$sim_method == "kernel_density", "Kernel",
                                   "Normal"))) %>% factor(),
-           sim_method_plot = factor(ifelse(sim_method %in% c("Kernel", "Normal"),
+           sim_method_plot = factor(ifelse(.data$sim_method %in% c("Kernel", "Normal"),
                                            "Density",
-                                           as.character(sim_method))),
-           nbins_plot = factor(ifelse(is.na(nbins),
-                                      as.character(sim_method),
-                                      as.character(nbins)))) %>%
-    mutate(ranking_value = ifelse(metric == "Average R2", -value, value)) %>%
-    group_by(metric) %>%
-    mutate(rank = rank(ranking_value),
-           gower_pow = factor(gower_pow)) %>%
-    arrange(metric, value)
-
-  # Create color palette
-  #colors <- scales::seq_gradient_pal("blue", "lightblue", "Lab")(seq(0, 1 , length.out = length(unique(plot_data$rank))))
+                                           as.character(.data$sim_method))),
+           nbins_plot = factor(ifelse(is.na(.data$nbins),
+                                      as.character(.data$sim_method),
+                                      as.character(.data$nbins)))) %>%
+    mutate(ranking_value = ifelse(.data$metric == "Average R2", -.data$value, .data$value)) %>%
+    group_by(.data$metric) %>%
+    mutate(rank = rank(.data$ranking_value),
+           gower_pow = factor(.data$gower_pow)) %>%
+    arrange(.data$metric, .data$value)
 
   # Create the comparison plot based on whether 1 or more gower power 
   # was specified
   if (length(unique(plot_data$gower_pow)) == 1) {
     plot <- ggplot(plot_data, 
-                   aes(x = nbins_plot, y = value, color = rank))
+                   aes(x = .data$nbins_plot, y = .data$value, color = .data$rank))
   } else {
     plot <- ggplot(plot_data, 
-                   aes(x = nbins_plot, y = value, color = rank, shape = gower_pow)) + 
+                   aes(x = .data$nbins_plot, y = .data$value, 
+                       color = .data$rank, shape = .data$gower_pow)) + 
       labs(shape = "Gower \nPower")
   }
   
   # Add the additional layers to the plot
   plot + geom_point() +
-    facet_grid(metric ~ sim_method_plot, scales = "free", space = "free_x") +
+    facet_grid(.data$metric ~ .data$sim_method_plot, 
+               scales = "free", space = "free_x") +
     theme_grey() +
     labs(x = "Number of Bins",
          y = "Metric Value",
-         color = "Rank") #+
-    #scale_colour_manual(values = colors)  
+         color = "Rank")
 
 }
 

@@ -13,6 +13,7 @@
 #'        
 #' @importFrom dplyr mutate_at slice
 #' @importFrom ggplot2 element_rect geom_hline geom_vline guides guide_legend scale_color_gradient2 scale_fill_gradient2 scale_shape_manual scale_size theme_grey
+#' @importFrom utils combn
 #' @export eoi_plot
 #' 
 #' @examples 
@@ -52,17 +53,17 @@ eoi_plot <- function(explanation, bins = TRUE, weights = TRUE, alpha = 1, title.
   # with the simulated data values
   complex_pred = explanation %>%
     dplyr::slice(1) %>%
-    dplyr::pull(perms_pred_complex) %>%
+    dplyr::pull(.data$perms_pred_complex) %>%
     as.data.frame()
   
   # Extract the weights associated with the simulated values
   sim_weights = explanation %>%
     dplyr::slice(1) %>%
-    dplyr::pull(weights)
+    dplyr::pull(.data$weights)
   
   # If label was a number, then extract the column differently
   if (sum(names(complex_pred) == eoi_label) == 0) {
-    detected = stringr::str_detect(names(complex_pred), eoi_label)
+    detected = stringr::str_detect(names(complex_pred), .data$eoi_label)
     eoi_label = names(complex_pred)[detected]
   }
   
@@ -73,7 +74,7 @@ eoi_plot <- function(explanation, bins = TRUE, weights = TRUE, alpha = 1, title.
   # predictions from the complex model
   sim_data <- explanation %>% 
     dplyr::slice(1) %>%
-    dplyr::pull(perms_raw) %>%
+    dplyr::pull(.data$perms_raw) %>%
     as.data.frame() %>%
     dplyr::select(all_of(eoi_features)) %>%
     dplyr::mutate(complex_pred = complex_pred %>% 
@@ -96,8 +97,8 @@ eoi_plot <- function(explanation, bins = TRUE, weights = TRUE, alpha = 1, title.
                  weights = sim_data$weights) %>%
         dplyr::mutate_at(.vars = c("f1", "f2"), .funs = as.character)
     }) %>%
-    dplyr::mutate(f1 = factor(f1, levels = unique(feature_pairs[,1])),
-                  f2 = factor(f2, levels = unique(feature_pairs[,2])))
+    dplyr::mutate(f1 = factor(.data$f1, levels = unique(feature_pairs[,1])),
+                  f2 = factor(.data$f2, levels = unique(feature_pairs[,2])))
   
   # Create a dataframe with the prediction of interest's 
   # observed feature values
@@ -116,8 +117,8 @@ eoi_plot <- function(explanation, bins = TRUE, weights = TRUE, alpha = 1, title.
                  complex_pred = explanation$label_prob[1]) %>%
         dplyr::mutate_at(.vars = c("f1", "f2"), .funs = as.character)
     }) %>%
-    dplyr::mutate(f1 = factor(f1, levels = unique(feature_pairs[,1])),
-                  f2 = factor(f2, levels = unique(feature_pairs[,2])))
+    dplyr::mutate(f1 = factor(.data$f1, levels = unique(feature_pairs[,1])),
+                  f2 = factor(.data$f2, levels = unique(feature_pairs[,2])))
   
   # Create bin data if requested and appropriate
   if (explanation$sim_method[1] %in% c("quantile_bins", "equal_bins") & bins == TRUE) {
@@ -130,7 +131,7 @@ eoi_plot <- function(explanation, bins = TRUE, weights = TRUE, alpha = 1, title.
                        .funs = as.character) %>%
       tidyr::pivot_longer(names_to = "bound", 
                           values_to = "value", 
-                          lower:upper) %>%
+                          .data$lower:.data$upper) %>%
       tidyr::pivot_wider(names_from = "feature",
                          values_from = "value")
     
@@ -146,11 +147,11 @@ eoi_plot <- function(explanation, bins = TRUE, weights = TRUE, alpha = 1, title.
                            .funs = as.character) %>%
           dplyr::mutate_at(.vars = c("y", "x"), 
                            .funs = function(val) as.numeric(as.character(val))) %>%
-          dplyr::mutate(y = ifelse(y == -Inf | y == Inf, NA, y),
-                        x = ifelse(x == -Inf | x == Inf, NA, x))
+          dplyr::mutate(y = ifelse(.data$y == -Inf | .data$y == Inf, NA, .data$y),
+                        x = ifelse(.data$x == -Inf | .data$x == Inf, NA, .data$x))
       }) %>%
-      dplyr::mutate(f1 = factor(f1, levels = unique(feature_pairs[,1])),
-                    f2 = factor(f2, levels = unique(feature_pairs[,2])))
+      dplyr::mutate(f1 = factor(.data$f1, levels = unique(feature_pairs[,1])),
+                    f2 = factor(.data$f2, levels = unique(feature_pairs[,2])))
     
   }
   
@@ -159,12 +160,17 @@ eoi_plot <- function(explanation, bins = TRUE, weights = TRUE, alpha = 1, title.
   if (weights == TRUE) {
     plot <- ggplot() + 
       geom_point(data = sim_data_plot,
-                 mapping =  aes(x = v2, y = v1, color = complex_pred, size = weights),
+                 mapping =  aes(x = .data$v2, 
+                                y = .data$v1, 
+                                color = complex_pred, 
+                                size = .data$weights),
                  alpha = alpha)
   } else {
     plot <- ggplot() + 
       geom_point(data = sim_data_plot,
-                 mapping =  aes(x = v2, y = v1, color = complex_pred),
+                 mapping =  aes(x = .data$v2, 
+                                y = .data$v1, 
+                                color = complex_pred),
                  alpha = alpha)
   }
   
@@ -172,14 +178,14 @@ eoi_plot <- function(explanation, bins = TRUE, weights = TRUE, alpha = 1, title.
   plot <- plot + 
     geom_point(data = poi_data_plot %>% 
                  mutate(shape = "Prediction \nof Interest"), 
-               mapping = aes(x = v2, 
-                             y = v1, 
+               mapping = aes(x = .data$v2, 
+                             y = .data$v1, 
                              fill = complex_pred, 
-                             shape = shape),
+                             shape = .data$shape),
                color = "black",
                size = 5,
                alpha = 0.8) +
-    facet_grid(f1 ~ f2, scales = "free", switch = "both") + 
+    facet_grid(.data$f1 ~ .data$f2, scales = "free", switch = "both") + 
     scale_color_gradient2(low = "firebrick", 
                           high = "steelblue", 
                           midpoint = 0.5, 
@@ -206,10 +212,10 @@ eoi_plot <- function(explanation, bins = TRUE, weights = TRUE, alpha = 1, title.
   # Add the bins to the plot if requested
   if (explanation$sim_method[1] %in% c("quantile_bins", "equal_bins") & bins == TRUE) {
     plot <- plot + 
-      geom_vline(data = bin_data_plot %>% select(-y) %>% na.omit(),
-                 mapping = aes(xintercept = x)) +
-      geom_hline(data = bin_data_plot %>% select(-x) %>% na.omit(),
-                 mapping = aes(yintercept = y))
+      geom_vline(data = bin_data_plot %>% select(-.data$y) %>% stats::na.omit(),
+                 mapping = aes(xintercept = .data$x)) +
+      geom_hline(data = bin_data_plot %>% select(-.data$x) %>% stats::na.omit(),
+                 mapping = aes(yintercept = .data$y))
   }
   
   # Add a title to the plot if requested

@@ -85,7 +85,8 @@ organize_inputs <- function(sim_method, nbins, gower_pow){
   # Add lime input variables
   inputs <- inputs %>%
     bind_cols(purrr::map_df(.x = inputs$sim_method, .f = method2inputs)) %>%
-    select(bin_continuous, quantile_bins, nbins, use_density, gower_pow)
+    select(.data$bin_continuous, .data$quantile_bins, 
+           .data$nbins, .data$use_density, .data$gower_pow)
 
   # Return the inputs as a list
   return(as.list(inputs))

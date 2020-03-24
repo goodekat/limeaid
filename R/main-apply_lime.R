@@ -41,6 +41,7 @@
 #' @importFrom furrr future_pmap
 #' @importFrom lime lime explain
 #' @importFrom purrr map map_df pmap pmap_dbl
+#' @importFrom rlang .data
 #'
 #' @export apply_lime
 #'
@@ -69,7 +70,7 @@ apply_lime <- function(train, test, model, sim_method, nbins = 4,
                        feature_select = "auto", dist_fun = "gower",
                        kernel_width = NULL, gower_pow = 1,
                        all_fs = FALSE, return_perms = FALSE,
-                       label_fs = NULL, seed = NULL){
+                       seed = NULL){
 
   # Checks
   checkmate::expect_data_frame(train)
@@ -118,7 +119,7 @@ apply_lime <- function(train, test, model, sim_method, nbins = 4,
   # Specify the order of the factors of sim_method
   sim_method_levels <- sim_method
   results$explain <- results$explain %>%
-    mutate(sim_method = factor(sim_method, levels = sim_method_levels))
+    dplyr::mutate(sim_method = factor(.data$sim_method, levels = sim_method_levels))
 
   # Name the items in the lime list
   names(results$lime) <- 

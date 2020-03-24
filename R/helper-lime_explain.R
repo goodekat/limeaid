@@ -32,7 +32,7 @@ lime_explain <- function(bin_continuous, quantile_bins, nbins,
     mutate(sim_method = inputs2method(bin_continuous = bin_continuous,
                                       quantile_bins = quantile_bins,
                                       use_density = use_density),
-           nbins = ifelse(sim_method %in% c("quantile_bins", "equal_bins"), nbins, NA),
+           nbins = ifelse(.data$sim_method %in% c("quantile_bins", "equal_bins"), nbins, NA),
            gower_pow = gower_pow) 
   
   # Compute the fidelity for each observation in the explanations dataset
@@ -40,12 +40,12 @@ lime_explain <- function(bin_continuous, quantile_bins, nbins,
 
   # Reorder variables and determine which to return based on return_perms
   if (return_perms == TRUE) {
-    explain <- explain %>% select(sim_method, nbins, gower_pow, everything())
+    explain <- explain %>% select(.data$sim_method, .data$nbins, .data$gower_pow, everything())
   } else if (return_perms == FALSE) {
     explain <- explain %>% 
-      select(sim_method, nbins, gower_pow, everything()) %>%
-      select(-perms_raw, -perms_numerified, -perms_pred_complex, 
-             -perms_pred_simple, -weights)
+      select(.data$sim_method, .data$nbins, .data$gower_pow, everything()) %>%
+      select(-.data$perms_raw, -.data$perms_numerified, -.data$perms_pred_complex, 
+             -.data$perms_pred_simple, -.data$weights)
   }
   
   # Return the output in a list

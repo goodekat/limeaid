@@ -63,19 +63,19 @@ compute_metrics <- function(explanations, metrics = "all"){
 
   # Compute the metrics
   res <- explanations %>%
-    group_by(implementation, sim_method, nbins, gower_pow) %>%
-    summarise(ave_r2 = mean(model_r2),
-              msee = sum((label_prob - model_prediction)^2) /
+    group_by(.data$implementation, .data$sim_method, .data$nbins, .data$gower_pow) %>%
+    summarise(ave_r2 = mean(.data$model_r2),
+              msee = sum((.data$label_prob - .data$model_prediction)^2) /
                 sqrt(n() - 1),
-              ave_fidelity = mean(fidelity)) %>%
+              ave_fidelity = mean(.data$fidelity)) %>%
     ungroup() %>%
     as.data.frame() %>% 
-    mutate(implemenation = as.numeric(implementation)) %>% 
-    arrange(implemenation) %>% 
-    mutate(implemenation = as.character(implemenation))
+    mutate(implemenation = as.numeric(.data$implementation)) %>% 
+    arrange(.data$implemenation) %>% 
+    mutate(implemenation = as.character(.data$implemenation))
 
   # Return a dataframe with the desired metrics
-  return(res %>% select(implementation, sim_method, nbins, gower_pow, metrics))
+  return(res %>% select(.data$implementation, .data$sim_method, .data$nbins, .data$gower_pow, .data$metrics))
 
 }
 

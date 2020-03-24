@@ -21,7 +21,7 @@
 #'
 #' @importFrom checkmate expect_data_frame expect_character
 #' @importFrom cluster daisy
-#' @importFrom dplyr arrange_at left_join pull
+#' @importFrom dplyr arrange_at desc left_join pull vars
 #' @importFrom ggplot2 aes facet_grid geom_point geom_tile ggplot labs scale_color_manual theme theme_bw
 #' @importFrom seriation seriate
 #' @importFrom tidyr pivot_wider
@@ -65,34 +65,36 @@ feature_heatmap <- function(explanations, feature_nums = NULL,
 
   # Prepare the explanation data for plotting
   heatmap_data <- explanations %>%
-    select(sim_method, nbins, gower_pow, case, feature, feature_weight) %>%
-    mutate(feature_magnitude = abs(feature_weight)) %>%
-    group_by(sim_method, nbins, gower_pow, case) %>%
-    arrange(sim_method, nbins, gower_pow, case, desc(feature_magnitude)) %>%
+    select(.data$sim_method, .data$nbins, .data$gower_pow, 
+           .data$case, .data$feature, .data$feature_weight) %>%
+    mutate(feature_magnitude = abs(.data$feature_weight)) %>%
+    group_by(.data$sim_method, .data$nbins, .data$gower_pow, .data$case) %>%
+    arrange(.data$sim_method, .data$nbins, .data$gower_pow, 
+            .data$case, desc(.data$feature_magnitude)) %>%
     mutate(feature_num = 1:n()) %>%
     ungroup() %>%
-    mutate(nbins = factor(nbins),
-           gower_pow = factor(paste("Gower \nPower of", gower_pow)),
-           feature = factor(feature),
+    mutate(nbins = factor(.data$nbins),
+           gower_pow = factor(paste("Gower \nPower of", .data$gower_pow)),
+           feature = factor(.data$feature),
            sim_method =
-             ifelse(sim_method == "quantile_bins", "Quantile Bins",
-                    ifelse(sim_method == "equal_bins", "Equal Bins",
-                           ifelse(sim_method == "kernel_density", "Kernel",
+             ifelse(.data$sim_method == "quantile_bins", "Quantile Bins",
+                    ifelse(.data$sim_method == "equal_bins", "Equal Bins",
+                           ifelse(.data$sim_method == "kernel_density", "Kernel",
                                   "Normal"))) %>% factor(),
-           sim_method_plot = factor(ifelse(sim_method %in% c("Kernel", "Normal"),
+           sim_method_plot = factor(ifelse(.data$sim_method %in% c("Kernel", "Normal"),
                                            "Density",
-                                           as.character(sim_method))),
-           nbins_plot = factor(ifelse(is.na(nbins),
-                                      as.character(sim_method),
-                                      as.character(nbins)))) %>%
-    mutate(case = as.character(case))
+                                           as.character(.data$sim_method))),
+           nbins_plot = factor(ifelse(is.na(.data$nbins),
+                                      as.character(.data$sim_method),
+                                      as.character(.data$nbins)))) %>%
+    mutate(case = as.character(.data$case))
   
   # If requested add faceting variable
   if (!is.null(facet_var)) {
     heatmap_data <- heatmap_data %>%
       left_join(data.frame(case = unique(explanations$case), 
                            facet_var = facet_var) %>%
-                  mutate(case = as.character(case)),
+                  mutate(case = as.character(.data$case)),
                 by = "case")
   }
   
@@ -100,14 +102,14 @@ feature_heatmap <- function(explanations, feature_nums = NULL,
   if (!(is.null(feature_nums))) {
     min_feat_num <- min(feature_nums)
     heatmap_data <- heatmap_data %>%
-      filter(feature_num %in% feature_nums) %>%
-      mutate(feature_num = factor(feature_num),
-             feature_num = paste("Feature", feature_num))
+      filter(.data$feature_num %in% feature_nums) %>%
+      mutate(feature_num = factor(.data$feature_num),
+             feature_num = paste("Feature", .data$feature_num))
   } else {
     min_feat_num <- min(heatmap_data$feature_num)
     heatmap_data <- heatmap_data %>%
-      mutate(feature_num = factor(feature_num),
-             feature_num = paste("Feature", feature_num))
+      mutate(feature_num = factor(.data$feature_num),
+             feature_num = paste("Feature", .data$feature_num))
   }
   
   # If requested, determine an order for the cases using seriation 
@@ -116,7 +118,7 @@ feature_heatmap <- function(explanations, feature_nums = NULL,
     # Turn case into a factor and order the levels numerically
     cases_order = sort(as.numeric(as.character(unique(heatmap_data$case))))
     heatmap_data <- heatmap_data %>% 
-      mutate(case = factor(case, levels = cases_order))
+      mutate(case = factor(.data$case, levels = cases_order))
     
   } else if (order_method == "feature_arrange") {
     
@@ -125,23 +127,23 @@ feature_heatmap <- function(explanations, feature_nums = NULL,
     # Row: case in data
     # Cell: feature selected by lime
     sim_features <- heatmap_data %>%
-      filter(feature_num == paste("Feature", min_feat_num)) %>%
-      mutate(method = paste(sim_method, nbins, gower_pow)) %>%
-      select(-feature_weight, -feature_magnitude, -sim_method, 
-             -nbins, -gower_pow, -sim_method_plot,
-             -nbins_plot, -facet_var) %>%
+      filter(.data$feature_num == paste("Feature", .data$min_feat_num)) %>%
+      mutate(method = paste(.data$sim_method, .data$nbins, .data$gower_pow)) %>%
+      select(-.data$feature_weight, -.data$feature_magnitude, -.data$sim_method, 
+             -.data$nbins, -.data$gower_pow, -.data$sim_method_plot,
+             -.data$nbins_plot, -.data$facet_var) %>%
       tidyr::pivot_wider(names_from = "method", values_from = "feature")
     
     # Determine the order of the cases
     cases_order <- sim_features %>%
-      select(-feature_num) %>%
-      arrange_at(vars(-case)) %>%
-      pull(case)
+      select(-.data$feature_num) %>%
+      arrange_at(vars(-.data$case)) %>%
+      pull(.data$case)
     
     # Add the order to the heatmap data
     heatmap_data <- heatmap_data %>%
-      mutate(case = as.character(case)) %>%
-      mutate(case = factor(case, levels = cases_order))
+      mutate(case = as.character(.data$case)) %>%
+      mutate(case = factor(.data$case, levels = cases_order))
     
   } else {
     
@@ -150,16 +152,17 @@ feature_heatmap <- function(explanations, feature_nums = NULL,
     # Row: case in data
     # Cell: feature selected by lime
     sim_features <- heatmap_data %>%
-      filter(feature_num == paste("Feature", min_feat_num)) %>%
-      mutate(method = paste(sim_method, nbins, gower_pow)) %>%
-      select(-feature_weight, -feature_magnitude, -sim_method, 
-             -nbins, -gower_pow, -sim_method_plot,
-             -nbins_plot, -facet_var) %>%
+      filter(.data$feature_num == paste("Feature", min_feat_num)) %>%
+      mutate(method = paste(.data$sim_method, .data$nbins, .data$gower_pow)) %>%
+      select(-.data$feature_weight, -.data$feature_magnitude, -.data$sim_method, 
+             -.data$nbins, -.data$gower_pow, -.data$sim_method_plot,
+             -.data$nbins_plot, -.data$facet_var) %>%
       tidyr::pivot_wider(names_from = "method", values_from = "feature")
     
     # Calculate the distances between colums and use seriate
     # to order the cases
-    features_dist <- cluster::daisy(sim_features %>% select(-case, -feature_num))
+    features_dist <- cluster::daisy(sim_features %>% 
+                                      select(-.data$case, -.data$feature_num))
     features_ord <- seriation::seriate(features_dist, method = order_method)
     if (order_method %in% c("ARSA", "Random", "TSP")) {
       sim_features$order <- features_ord[[1]][]
@@ -169,21 +172,21 @@ feature_heatmap <- function(explanations, feature_nums = NULL,
     
     # Determine the order of the cases
     cases_order <- sim_features %>% 
-      select(case, order) %>% 
-      arrange(order) %>%
-      pull(case)
+      select(.data$case, .data$order) %>% 
+      arrange(.data$order) %>%
+      pull(.data$case)
 
     # Add the order to the heatmap data
     heatmap_data <- heatmap_data %>%
-      mutate(case = as.character(case)) %>%
-      mutate(case = factor(case, levels = cases_order))
+      mutate(case = as.character(.data$case)) %>%
+      mutate(case = factor(.data$case, levels = cases_order))
     
   }
     
   # Create the heatmap
   plot <- 
     ggplot(heatmap_data, 
-           aes(x = nbins_plot, y = case, fill = feature)) +
+           aes(x = .data$nbins_plot, y = .data$case, fill = .data$feature)) +
     geom_tile() +
     theme_grey() +
     labs(x = "Number of Bins",
@@ -193,12 +196,12 @@ feature_heatmap <- function(explanations, feature_nums = NULL,
   # Facet and return the plot
   if (!is.null(facet_var)) {
     plot + 
-      facet_grid(feature_num + facet_var ~ 
-                   sim_method_plot + gower_pow, 
+      facet_grid(.data$feature_num + .data$facet_var ~ 
+                   .data$sim_method_plot + .data$gower_pow, 
                  scales = "free", space = "free")
   } else {
     plot + 
-      facet_grid(feature_num ~ sim_method_plot + gower_pow, 
+      facet_grid(.data$feature_num ~ .data$sim_method_plot + .data$gower_pow, 
                  scales = "free", space = "free") 
   }
     

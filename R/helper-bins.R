@@ -5,10 +5,10 @@
 extract_bounds <- function(feature, feature_desc) {
   data.frame(feature = feature, 
              feature_desc = feature_desc) %>%
-    tidyr::separate(feature_desc, c("other", "upper"), sep = " <= ") %>%
-    tidyr::separate(other, c("lower", "feature2"), sep = " < ") %>%
-    mutate(upper = ifelse(is.na(upper), "Inf", upper)) %>%
-    select(-feature2) %>%
-    mutate_at(.vars = c("lower", "upper"), .funs = as.numeric) %>%
-    mutate(lower = ifelse(is.na(lower), "-Inf", lower))
+    tidyr::separate(.data$feature_desc, c("other", "upper"), sep = " <= ") %>%
+    tidyr::separate(.data$other, c("lower", "feature2"), sep = " < ") %>%
+    dplyr::mutate(upper = ifelse(is.na(.data$upper), "Inf", .data$upper)) %>%
+    dplyr::select(-.data$feature2) %>%
+    dplyr::mutate_at(.vars = c("lower", "upper"), .funs = as.numeric) %>%
+    dplyr::mutate(lower = ifelse(is.na(.data$lower), "-Inf", .data$lower))
 }

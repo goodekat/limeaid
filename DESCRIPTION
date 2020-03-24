@@ -23,6 +23,7 @@ Imports:
   ggplot2,
   lime,
   purrr,
+  rlang,
   scales,
   seriation,
   stringr,
