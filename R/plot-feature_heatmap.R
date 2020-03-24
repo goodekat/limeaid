@@ -41,7 +41,6 @@
 #' rf <- randomForest::randomForest(x = x_train, y = y_train) 
 #' 
 #' # Run apply_lime
-#' \dontrun{
 #' res <- apply_lime(train = x_train, 
 #'                   test = x_test, 
 #'                   model = rf,
@@ -49,14 +48,13 @@
 #'                   n_features = 2,
 #'                   sim_method = c('quantile_bins',
 #'                                  'kernel_density'),
-#'                   nbins = 2:3)
+#'                   nbins = 2:4)
 #'                   
 #' # Plot heatmap of selected features across LIME implementations
 #' feature_heatmap(res$explain)
 #'
 #' # Return a heatmap with only the features selected first by LIME
 #' feature_heatmap(res$explain, feature_num = 1)
-#' }
 
 feature_heatmap <- function(explanations, feature_nums = NULL,
                             facet_var = NULL, order_method = "obs_num"){

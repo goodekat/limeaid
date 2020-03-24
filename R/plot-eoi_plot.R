@@ -27,7 +27,6 @@
 #' rf <- randomForest::randomForest(x = x_train, y = y_train)
 #'                        
 #' # Run apply_lime
-#' \dontrun{
 #' res <- apply_lime(train = x_train, 
 #'                   test = x_test, 
 #'                   model = rf,
@@ -44,7 +43,6 @@
 #' 
 #' # Plot the explanation of interest
 #' eoi_plot(eoi)
-#' }
 
 eoi_plot <- function(explanation, bins = TRUE, weights = TRUE, alpha = 1, title.opt = TRUE) {
   

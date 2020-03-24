@@ -36,22 +36,20 @@
 #' rf <- randomForest::randomForest(x = x_train, y = y_train) 
 #' 
 #' # Run apply_lime
-#' \dontrun{
 #' res <- apply_lime(train = x_train, 
 #'                   test = x_test, 
 #'                   model = rf,
 #'                   label = "1",
 #'                   n_features = 2,
-#'                   sim_method = c('quantile_bins',
-#'                                  'kernel_density'),
-#'                   nbins = 2:3)
+#'                   sim_method = 'quantile_bins',
+#'                   nbins = 2:3, 
+#'                   gower_pow = c(1, 5))
 #'
 #' # Plot metrics to compare LIME implementations
 #' metric_plot(res$explain)
 #'
 #' # Return a plot with only the MSEE values
 #' metric_plot(res$explain, metrics = "msee")
-#' }
 
 metric_plot <- function(explanations, metrics = 'all'){
 

@@ -34,7 +34,6 @@
 #' rf <- randomForest::randomForest(x = x_train, y = y_train) 
 #' 
 #' # Run apply_lime
-#' \dontrun{
 #' res <- apply_lime(train = x_train, 
 #'                   test = x_test, 
 #'                   model = rf,
@@ -49,7 +48,6 @@
 #'
 #' # Return a table with only the MSEE values
 #' compute_metrics(res$explain, metrics = "msee")
-#' }
 
 compute_metrics <- function(explanations, metrics = "all"){
 

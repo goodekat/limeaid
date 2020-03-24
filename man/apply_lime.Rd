@@ -7,7 +7,7 @@
 apply_lime(train, test, model, sim_method, nbins = 4, label, n_features,
   n_permutations = 5000, feature_select = "auto", dist_fun = "gower",
   kernel_width = NULL, gower_pow = 1, all_fs = FALSE,
-  return_perms = FALSE, seed = NULL)
+  return_perms = FALSE, parallel = FALSE, seed = NULL)
 }
 \arguments{
 \item{train}{Dataframe of training data features.}
@@ -55,6 +55,12 @@ method specified in the \code{feature_selection} option.}
 returned for all of the observations in the test datatset and
 LIME implementations? Default is FALSE.}
 
+\item{parallel}{Indicates whether to perform the application of
+LIME using parallel computation (with furrr) or without
+(with purrr). Default is FALSE. Setting parallel = TRUE may 
+help with computation time with very large test datasets or
+many different sets of tuning parameters.}
+
 \item{seed}{Number to be used as a seed (if desired).}
 }
 \description{
@@ -71,7 +77,6 @@ x_test = sine_data_test[1:5, c("x1", "x2", "x3")]
 rf <- randomForest::randomForest(x = x_train, y = y_train) 
 
 # Run apply_lime
-\dontrun{
 res <- apply_lime(train = x_train, 
                   test = x_test, 
                   model = rf,
@@ -80,5 +85,4 @@ res <- apply_lime(train = x_train,
                   sim_method = c('quantile_bins',
                                  'kernel_density'),
                   nbins = 2:3)
-}
 }
