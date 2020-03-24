@@ -129,7 +129,7 @@ feature_heatmap <- function(explanations, feature_nums = NULL,
     # Row: case in data
     # Cell: feature selected by lime
     sim_features <- heatmap_data %>%
-      filter(.data$feature_num == paste("Feature", .data$min_feat_num)) %>%
+      filter(.data$feature_num == paste("Feature", min_feat_num)) %>%
       mutate(method = paste(.data$sim_method, .data$nbins, .data$gower_pow)) %>%
       select(-.data$feature_weight, -.data$feature_magnitude, -.data$sim_method, 
              -.data$nbins, -.data$gower_pow, -.data$sim_method_plot,
