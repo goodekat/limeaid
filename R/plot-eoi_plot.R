@@ -48,6 +48,9 @@
 
 eoi_plot <- function(explanation, bins = TRUE, weights = TRUE, alpha = 1, title.opt = TRUE) {
   
+  # Sort the explanation by the magnitude of the feature weight
+  explanation <- explanation %>% arrange(desc(abs(.data$feature_weight)))
+  
   # Extract the label associated with the explanation
   eoi_label = explanation$label[1]
   
