@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE)
 
 limeaid is an R package for assessing explanations created using the R package [lime](https://lime.data-imaginist.com/).
 
-```{r eval = FALSE}
+ The current implementation was developed to be used with classification models with a binary response and continuous features.```{r eval = FALSE}
 # Installation instructions 
 devtools::install_github("goodekat/limeaid")
 ```

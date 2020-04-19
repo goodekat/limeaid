@@ -6,10 +6,10 @@
 limeaid is an R package for assessing explanations created using the R
 package [lime](https://lime.data-imaginist.com/).
 
-``` r
-# Installation instructions 
-devtools::install_github("goodekat/limeaid")
-```
+The current implementation was developed to be used with classification
+models with a binary response and continuous features.`{r eval = FALSE}
+# Installation instructions
+devtools::install_github("goodekat/limeaid")`
 
 ``` r
 library(cowplot)
@@ -51,21 +51,21 @@ explanations <- lime_applied$explain
 feature_heatmap(explanations)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 ``` r
 # Create another heatmap but order the features using a seriation method
 feature_heatmap(explanations, order_method = "PCA")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-2-2.png)<!-- -->
 
 ``` r
 # Create a plot of metrics for comparing the lime implementations
 metric_plot(explanations)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 ``` r
 # Plots of several explanations of interest (2-4 quantile bins)
@@ -75,7 +75,7 @@ plot_grid(eoi_plot(explanations[1:2,]),
           nrow = 1)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ``` r
 # Plots of several explanations of interest (2-4 equal bins)
@@ -85,11 +85,11 @@ plot_grid(eoi_plot(explanations[31:32,]),
           nrow = 1)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
 
 ``` r
 # Plots of an explanation of interest (kernel density)
 eoi_plot(explanations[121:122,])
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
