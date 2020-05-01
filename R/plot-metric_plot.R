@@ -88,6 +88,7 @@ metric_plot <- function(explanations, metrics = 'all'){
            nbins_plot = factor(ifelse(is.na(.data$nbins),
                                       as.character(.data$sim_method),
                                       as.character(.data$nbins)))) %>%
+    mutate(metric = factor(.data$metric, levels = c("Average R2", "Average Fidelity", "MSEE"))) %>%
     mutate(ranking_value = ifelse(.data$metric == "Average R2", -.data$value, .data$value)) %>%
     group_by(.data$metric) %>%
     mutate(rank = rank(.data$ranking_value),
