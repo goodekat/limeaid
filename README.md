@@ -1,5 +1,5 @@
 
-# limeaid <img align="right" width="150" height="150" src="inst/limeaid-sticker2.png">
+# limeaid <img align="right" width="150" height="170" src="inst/limeaid-sticker2.png">
 
 🚧 under construction 🚧
 
