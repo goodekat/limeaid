@@ -23,7 +23,7 @@
 #' @importFrom checkmate expect_data_frame expect_character
 #' @importFrom cluster daisy
 #' @importFrom dplyr arrange_at desc left_join pull vars
-#' @importFrom ggplot2 aes facet_grid geom_point geom_tile ggplot labs scale_color_manual scale_fill_grey theme theme_bw
+#' @importFrom ggplot2 aes facet_grid geom_point geom_tile ggplot labs scale_color_grey scale_color_manual scale_fill_grey theme theme_bw
 #' @importFrom seriation list_seriation_methods seriate
 #' @importFrom tidyr pivot_wider
 #' @importFrom tidyselect all_of
@@ -175,12 +175,13 @@ feature_heatmap <- function(explanations, feature_nums = NULL,
   # Create the heatmap
   plot <- 
     ggplot(heatmap_data, 
-           aes(x = .data$nbins_plot, y = .data$case, fill = .data$feature)) +
+           aes(x = .data$nbins_plot, y = .data$case, fill = .data$feature, color = .data$feature)) +
     geom_tile() +
     theme_grey() +
     labs(x = "Number of Bins",
          y = "Prediction Number",
-         fill = "Feature")
+         fill = "Feature",
+         color = "Feature")
 
   # Facet, add grey scale colors, and return the plot
   if (!is.null(facet_var)) {
@@ -188,12 +189,14 @@ feature_heatmap <- function(explanations, feature_nums = NULL,
       facet_grid(.data$feature_num + .data$facet_var ~ 
                    .data$sim_method_plot + .data$gower_pow, 
                  scales = "free", space = "free") + 
-      scale_fill_grey()
+      scale_fill_grey() +
+      scale_color_grey()
   } else {
     plot + 
       facet_grid(.data$feature_num ~ .data$sim_method_plot + .data$gower_pow, 
                  scales = "free", space = "free") + 
-      scale_fill_grey()
+      scale_fill_grey() + 
+      scale_color_grey()
   }
     
 }
