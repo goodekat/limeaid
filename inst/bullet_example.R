@@ -28,15 +28,15 @@ bullet_lime_explain_perms <- apply_lime(
 bullet_lime_perms <- bullet_lime_explain_perms$lime
 bullet_explain_perms <- bullet_lime_explain_perms$explain
 
-eoi_plot(bullet_explain_perms[1:3,])
+plot_expl_scatter(bullet_explain_perms[1:3,])
 lime::plot_features(bullet_explain_perms[4:6,])
-eoi_plot(bullet_explain_perms[4:6,])
-eoi_plot(bullet_explain_perms[7:9,])
+plot_expl_scatter(bullet_explain_perms[4:6,])
+plot_expl_scatter(bullet_explain_perms[7:9,])
 
 explanation = bullet_explain_perms %>% 
   filter(case == 1, sim_method == "equal_bins", nbins == 3)
 
-eoi_plot(explanation)
+plot_expl_scatter(explanation)
 lime::plot_features(explanation)
 
 

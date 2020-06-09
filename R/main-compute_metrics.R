@@ -5,8 +5,7 @@
 #'
 #' @param explanations Explain dataframe from the list returned by apply_lime.
 #' @param metrics Vector specifying metrics to compute. Default is 'all'. See details for metrics available.
-#' @param include_sd Indicator for whether standard deviation of R2 and/or fidelity should also be returned. (Default is FALSE.)
-#'
+#' 
 #' @details The metrics available are listed below.
 #'
 #' \itemize{
@@ -50,7 +49,7 @@
 #' # Return a table with only the MSEE values
 #' compute_metrics(res$explain, metrics = "msee")
 
-compute_metrics <- function(explanations, metrics = "all", include_sd = FALSE){
+compute_metrics <- function(explanations, metrics = "all"){
 
   # Checks
   checkmate::expect_data_frame(explanations)
@@ -61,41 +60,20 @@ compute_metrics <- function(explanations, metrics = "all", include_sd = FALSE){
 
   # If metrics is not specified
   if ("all" %in% metrics) metrics = c("ave_r2", "msee", "ave_fidelity")
-  
-  # If include_sd is TRUE, then add necessary standard deviations to metrics
-  if (include_sd == TRUE & "ave_r2" %in% metrics) metrics = c(metrics, "sd_r2")
-  if (include_sd == TRUE & "ave_fidelity" %in% metrics) metrics = c(metrics, "sd_fidelity")
-  
+
   # Compute the metrics
-  if (include_sd != TRUE) {
-    res <- explanations %>%
-      group_by(.data$implementation, .data$sim_method, .data$nbins, .data$gower_pow) %>%
-      summarise(ave_r2 = mean(.data$model_r2),
-                msee = sum((.data$label_prob - .data$model_prediction)^2) /
-                  sqrt(n() - 1),
-                ave_fidelity = mean(.data$fidelity)) %>%
-      ungroup() %>%
-      as.data.frame() %>% 
-      mutate(implemenation = as.numeric(.data$implementation)) %>% 
-      arrange(.data$implemenation) %>% 
-      mutate(implemenation = as.character(.data$implemenation)) %>%
-      select(.data$implementation, .data$sim_method, .data$nbins, .data$gower_pow, metrics)
-  } else {
-    res <- explanations %>%
-      group_by(.data$implementation, .data$sim_method, .data$nbins, .data$gower_pow) %>%
-      summarise(ave_r2 = mean(.data$model_r2),
-                sd_r2 = sd(.data$model_r2),
-                msee = sum((.data$label_prob - .data$model_prediction)^2) /
-                  sqrt(n() - 1),
-                ave_fidelity = mean(.data$fidelity),
-                sd_fidelity = sd(.data$fidelity)) %>%
-      ungroup() %>%
-      as.data.frame() %>% 
-      mutate(implemenation = as.numeric(.data$implementation)) %>% 
-      arrange(.data$implemenation) %>% 
-      mutate(implemenation = as.character(.data$implemenation)) %>%
-      select(.data$implementation, .data$sim_method, .data$nbins, .data$gower_pow, metrics)
-  }
+  res <- explanations %>%
+    group_by(.data$implementation, .data$sim_method, .data$nbins, .data$gower_pow) %>%
+    summarise(ave_r2 = mean(.data$model_r2),
+              msee = sum((.data$label_prob - .data$model_prediction)^2) /
+                sqrt(n() - 1),
+              ave_fidelity = mean(.data$fidelity)) %>%
+    ungroup() %>%
+    as.data.frame() %>% 
+    mutate(implemenation = as.numeric(.data$implementation)) %>% 
+    arrange(.data$implemenation) %>% 
+    mutate(implemenation = as.character(.data$implemenation)) %>%
+    select(.data$implementation, .data$sim_method, .data$nbins, .data$gower_pow, metrics)
 
   # Return a dataframe with the desired metrics
   return(res)

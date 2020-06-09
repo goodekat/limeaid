@@ -67,7 +67,7 @@ plot_metrics <- function(explanations, metrics = 'all', add_lines = FALSE, rank_
   if ("all" %in% metrics) metrics = c("ave_r2", "msee", "ave_fidelity")
 
   # Obtain the comparison metrics
-  metric_data <- compute_metrics(explanations, metrics, include_sd)
+  metric_data <- compute_metrics(explanations, metrics)
 
   # Prepare the data for the plot
   plot_data <- metric_data %>%

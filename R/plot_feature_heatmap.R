@@ -28,7 +28,7 @@
 #' @importFrom tidyr pivot_wider
 #' @importFrom tidyselect all_of
 #'
-#' @export feature_heatmap
+#' @export plot_feature_heatmap
 #'
 #' @examples
 #'
@@ -51,12 +51,12 @@
 #'                   nbins = 2:4)
 #'                   
 #' # Plot heatmap of selected features across LIME implementations
-#' feature_heatmap(res$explain)
+#' plot_feature_heatmap(res$explain)
 #'
 #' # Return a heatmap with only the features selected first by LIME
-#' feature_heatmap(res$explain, feature_num = 1)
+#' plot_feature_heatmap(res$explain, feature_num = 1)
 
-feature_heatmap <- function(explanations, feature_nums = NULL,
+plot_feature_heatmap <- function(explanations, feature_nums = NULL,
                             facet_var = NULL, order_method = "obs_num"){
 
   # Checks
@@ -169,7 +169,7 @@ feature_heatmap <- function(explanations, feature_nums = NULL,
       mutate(case = factor(.data$case, levels = cases[features_ordered[[1]]]))
     
   } else {
-    stop("order_method not specified correctly. See ?feature_heatmap for available options.")
+    stop("order_method not specified correctly. See ?plot_feature_heatmap for available options.")
   }
     
   # Create the heatmap

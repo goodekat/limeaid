@@ -27,48 +27,48 @@ le <- apply_lime(train = x_train,
 
 ## Tests for Plotting Functions ---------------------------------------
 
-test_that("feature_heatmap", {
+test_that("plot_feature_heatmap", {
   
   # Basic feature heatmap
-  fh1 <- feature_heatmap(le$explain)
+  fh1 <- plot_feature_heatmap(le$explain)
   vdiffr::expect_doppelganger(title = "Basic heatmap", fig = fh1)
   
   # Heatmap with feature_nums and facet_var specified
-  fh2 <- feature_heatmap(le$explain, feature_nums = 1, facet_var = y_test)
+  fh2 <- plot_feature_heatmap(le$explain, feature_nums = 1, facet_var = y_test)
   vdiffr::expect_doppelganger(title = "Heatmap with feature_nums and facet_var", fig = fh2)
   
   # Heatmaps with orderings
-  fh3 <- feature_heatmap(le$explain, order_method = "obs_num")
+  fh3 <- plot_feature_heatmap(le$explain, order_method = "obs_num")
   vdiffr::expect_doppelganger(title = "Heatmap ordered by obs_num", fig = fh3)
-  fh4 <- feature_heatmap(le$explain, order_method = "sort_features")
+  fh4 <- plot_feature_heatmap(le$explain, order_method = "sort_features")
   vdiffr::expect_doppelganger(title = "Heatmap ordered by sort_features", fig = fh4)
-  fh5 <- feature_heatmap(le$explain, order_method = "PCA")
+  fh5 <- plot_feature_heatmap(le$explain, order_method = "PCA")
   vdiffr::expect_doppelganger(title = "Heatmap ordered by PCA", fig = fh5)
-  testthat::expect_error(feature_heatmap(le$explain, order_method = "other"))
+  testthat::expect_error(plot_feature_heatmap(le$explain, order_method = "other"))
 
 })
 
-test_that("metric_plot", {
+test_that("plot_metrics", {
   
   # Basic metric plot
-  mp <- metric_plot(le$explain)
+  mp <- plot_metrics(le$explain)
   vdiffr::expect_doppelganger(title = "Basic Metric Plot", fig = mp)
   
   # Metric plot with with metrics specified
-  mp_met <- metric_plot(le$explain, metrics = "msee")
+  mp_met <- plot_metrics(le$explain, metrics = "msee")
   vdiffr::expect_doppelganger(title = "metrics = 'MSEE' Metric Plot", fig = mp_met)
   
 })
 
-test_that("eoi_plot", {
+test_that("plot_expl_scatter", {
   
   # Basic eoi plot
-  eoip <- eoi_plot(explanation = le$explain[1:2,])
+  eoip <- plot_expl_scatter(explanation = le$explain[1:2,])
   vdiffr::expect_doppelganger(title = "Explanation Plot", 
                               fig = eoip)
   
   # eoi plot with all options
-  eoi_opt <- eoi_plot(explanation = le$explain[1:2,], 
+  eoi_opt <- plot_expl_scatter(explanation = le$explain[1:2,], 
                       alpha = 0.5, 
                       bins = FALSE, 
                       weights = TRUE, 

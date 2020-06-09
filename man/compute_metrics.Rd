@@ -4,14 +4,12 @@
 \alias{compute_metrics}
 \title{Compute assessment metrics for LIME implementations}
 \usage{
-compute_metrics(explanations, metrics = "all", include_sd = FALSE)
+compute_metrics(explanations, metrics = "all")
 }
 \arguments{
 \item{explanations}{Explain dataframe from the list returned by apply_lime.}
 
 \item{metrics}{Vector specifying metrics to compute. Default is 'all'. See details for metrics available.}
-
-\item{include_sd}{Indicator for whether standard deviation of R2 and/or fidelity should also be returned. (Default is FALSE.)}
 }
 \description{
 Computes various metrics that can be used to assess LIME
