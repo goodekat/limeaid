@@ -4,6 +4,8 @@
 #'
 #' @param explanations Explain dataframe from the list returned by apply_lime.
 #' @param metrics Vector specifying metrics to compute. Default is 'all'. See details for metrics available.
+#' @param add_lines Draw lines between tuning parameters with the same gower power.
+#' @param include_sd Should error bars displaying plus/minus one standard deviation for R2 and/or fidelity be included? (Default is FALSE.)
 #'
 #' @details The metrics available are listed below.
 #'
@@ -14,8 +16,8 @@
 #' }
 #'
 #' @references Ribeiro, M. T., S. Singh, and C. Guestrin, 2016:
-#'   "why should I trust you?": Explaining the predictions of any classifier.
-#'   Proceedings of the 22nd ACM SIGKDD Inter- national Conference on
+#'   "Why should I trust you?": Explaining the predictions of any classifier.
+#'   Proceedings of the 22nd ACM SIGKDD International Conference on
 #'   Knowledge Discovery and Data Mining, San Francisco, CA, USA, August
 #'   13-17, 2016, 1135–1144.
 #'
@@ -23,7 +25,7 @@
 #' @importFrom tidyr gather
 #' @importFrom scales seq_gradient_pal
 #'
-#' @export metric_plot
+#' @export plot_metrics
 #'
 #' @examples
 #'
@@ -46,12 +48,13 @@
 #'                   gower_pow = c(1, 5))
 #'
 #' # Plot metrics to compare LIME implementations
-#' metric_plot(res$explain)
+#' plot_metrics(res$explain)
 #'
 #' # Return a plot with only the MSEE values
-#' metric_plot(res$explain, metrics = "msee")
+#' plot_metrics(res$explain, metrics = "msee")
 
-metric_plot <- function(explanations, metrics = 'all'){
+
+plot_metrics <- function(explanations, metrics = 'all', add_lines = FALSE, include_sd = FALSE){
 
   # Checks
   checkmate::expect_data_frame(explanations)
@@ -64,13 +67,13 @@ metric_plot <- function(explanations, metrics = 'all'){
   if ("all" %in% metrics) metrics = c("ave_r2", "msee", "ave_fidelity")
 
   # Obtain the comparison metrics
-  metric_data <- compute_metrics(explanations)
+  metric_data <- compute_metrics(explanations, metrics, include_sd)
 
   # Prepare the data for the plot
   plot_data <- metric_data %>%
     tidyr::pivot_longer(names_to = "metric", 
                         values_to = "value", 
-                        .data$ave_r2:.data$ave_fidelity) %>%
+                        metrics) %>%
     filter(.data$metric %in% metrics) %>%
     mutate(metric = factor(.data$metric),
            nbins = factor(.data$nbins),
@@ -91,7 +94,7 @@ metric_plot <- function(explanations, metrics = 'all'){
     mutate(metric = factor(.data$metric, levels = c("Average R2", "Average Fidelity", "MSEE"))) %>%
     mutate(ranking_value = ifelse(.data$metric == "Average R2", -.data$value, .data$value)) %>%
     group_by(.data$metric) %>%
-    mutate(rank = rank(.data$ranking_value),
+    mutate(rank = factor(rank(.data$ranking_value)),
            gower_pow = factor(.data$gower_pow)) %>%
     arrange(.data$metric, .data$value)
 
@@ -102,17 +105,21 @@ metric_plot <- function(explanations, metrics = 'all'){
                    aes(x = .data$nbins_plot, y = .data$value, color = .data$rank))
   } else {
     plot <- ggplot(plot_data, 
-                   aes(x = .data$nbins_plot, y = .data$value, 
-                       color = .data$rank, shape = .data$gower_pow)) + 
+                   aes(x = .data$nbins_plot, y = .data$value)) + 
       labs(shape = "Gower \nPower")
   }
   
+  # Add lines to the plot if requested
+  if (add_lines == TRUE) 
+    plot <- plot + geom_line(aes(group = .data$gower_pow), color = "grey50")
+  
   # Add the additional layers to the plot
-  plot + geom_point() +
+  plot +
+    geom_point(aes(color = .data$rank, shape = .data$gower_pow)) +
     facet_grid(.data$metric ~ .data$sim_method_plot, 
                scales = "free", space = "free_x") +
     theme_grey() +
-    scale_colour_gradient(low = "black", high = "grey80") +
+    scale_colour_grey() +
     labs(x = "Number of Bins",
          y = "Metric Value",
          color = "Rank")
