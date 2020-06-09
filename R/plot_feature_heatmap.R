@@ -57,7 +57,7 @@
 #' plot_feature_heatmap(res$explain, feature_num = 1)
 
 plot_feature_heatmap <- function(explanations, feature_nums = NULL,
-                            facet_var = NULL, order_method = "obs_num"){
+                                 facet_var = NULL, order_method = "obs_num"){
 
   # Checks
   checkmate::expect_data_frame(explanations)
@@ -172,6 +172,24 @@ plot_feature_heatmap <- function(explanations, feature_nums = NULL,
     stop("order_method not specified correctly. See ?plot_feature_heatmap for available options.")
   }
     
+  # Create vertical facet variable
+  if (length(unique(heatmap_data$gower_pow)) == 1) {
+    heatmap_data <- heatmap_data %>%
+      dplyr::mutate(vert_facet = .data$sim_method_plot)  
+  } else {
+    heatmap_data <- heatmap_data %>%
+      dplyr::mutate(vert_facet = paste0(.data$sim_method_plot, " \n", .data$gower_pow))
+  }
+  
+  # Create vertical facet variable
+  if (is.null(facet_var)) {
+    heatmap_data <- heatmap_data %>%
+      dplyr::mutate(horz_facet = .data$feature_num)  
+  } else {
+    heatmap_data <- heatmap_data %>%
+      dplyr::mutate(horz_facet = paste0(.data$feature_num, " \n", facet_var))
+  }
+  
   # Create the heatmap
   plot <- 
     ggplot(heatmap_data, 
@@ -182,22 +200,13 @@ plot_feature_heatmap <- function(explanations, feature_nums = NULL,
          y = "Prediction Number",
          fill = "Feature",
          color = "Feature")
-
+  
   # Facet, add grey scale colors, and return the plot
-  if (!is.null(facet_var)) {
-    plot + 
-      facet_grid(.data$feature_num + .data$facet_var ~ 
-                   .data$sim_method_plot + .data$gower_pow, 
-                 scales = "free", space = "free") + 
-      scale_fill_grey() +
-      scale_color_grey()
-  } else {
-    plot + 
-      facet_grid(.data$feature_num ~ .data$sim_method_plot + .data$gower_pow, 
-                 scales = "free", space = "free") + 
-      scale_fill_grey() + 
-      scale_color_grey()
-  }
+  plot + 
+    facet_grid(.data$horz_facet ~ .data$vert_facet, 
+               scales = "free", space = "free") + 
+    scale_fill_grey() + 
+    scale_color_grey()
     
 }
 

@@ -60,15 +60,15 @@ test_that("plot_metrics", {
   
 })
 
-test_that("plot_expl_scatter", {
+test_that("plot_explain_scatter", {
   
   # Basic eoi plot
-  eoip <- plot_expl_scatter(explanation = le$explain[1:2,])
+  eoip <- plot_explain_scatter(explanation = le$explain[1:2,])
   vdiffr::expect_doppelganger(title = "Explanation Plot", 
                               fig = eoip)
   
   # eoi plot with all options
-  eoi_opt <- plot_expl_scatter(explanation = le$explain[1:2,], 
+  eoi_opt <- plot_explain_scatter(explanation = le$explain[1:2,], 
                       alpha = 0.5, 
                       bins = FALSE, 
                       weights = TRUE, 

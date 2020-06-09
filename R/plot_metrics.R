@@ -21,7 +21,7 @@
 #'   Knowledge Discovery and Data Mining, San Francisco, CA, USA, August
 #'   13-17, 2016, 1135–1144.
 #'
-#' @importFrom ggplot2 scale_colour_grey
+#' @importFrom ggplot2 scale_color_gradient scale_colour_grey geom_line
 #' @importFrom tidyr gather
 #' @importFrom scales seq_gradient_pal
 #'

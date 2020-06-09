@@ -14,7 +14,7 @@
 #' @importFrom dplyr mutate_at slice
 #' @importFrom ggplot2 element_rect geom_hline geom_vline guides guide_legend scale_color_gradient2 scale_fill_gradient2 scale_shape_manual scale_size theme_grey
 #' @importFrom utils combn
-#' @export plot_expl_scatter
+#' @export plot_explain_scatter
 #' 
 #' @examples 
 #' 
@@ -42,9 +42,9 @@
 #' eoi <- res$explain[1:2,]
 #' 
 #' # Plot the explanation of interest
-#' plot_expl_scatter(eoi)
+#' plot_explain_scatter(eoi)
 
-plot_expl_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha = 1, title.opt = TRUE) {
+plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha = 1, title.opt = TRUE) {
   
   # Sort the explanation by the magnitude of the feature weight
   explanation <- explanation %>% arrange(desc(abs(.data$feature_weight)))
