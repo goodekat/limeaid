@@ -104,12 +104,12 @@ plot_feature_heatmap <- function(explanations, feature_nums = NULL,
     heatmap_data <- heatmap_data %>%
       filter(.data$feature_num %in% feature_nums) %>%
       mutate(feature_num = factor(.data$feature_num),
-             feature_num = paste("Feature", .data$feature_num))
+             feature_num = paste("LIME Feature", .data$feature_num))
   } else {
     min_feat_num <- min(heatmap_data$feature_num)
     heatmap_data <- heatmap_data %>%
       mutate(feature_num = factor(.data$feature_num),
-             feature_num = paste("Feature", .data$feature_num))
+             feature_num = paste("LIME Feature", .data$feature_num))
   }
   
   # If requested, determine an order for the cases using seriation 
@@ -124,7 +124,7 @@ plot_feature_heatmap <- function(explanations, feature_nums = NULL,
     
     # Prepare features for ordering
     sim_features <- heatmap_data %>%
-      filter(.data$feature_num == paste("Feature", min_feat_num)) %>%
+      filter(.data$feature_num == paste("LIME Feature", min_feat_num)) %>%
       mutate(method = paste(.data$sim_method, .data$nbins, .data$gower_pow)) %>%
       select(-.data$feature_weight, -.data$feature_magnitude, -.data$sim_method, 
              -.data$nbins, -.data$gower_pow, -.data$sim_method_plot,
@@ -150,7 +150,7 @@ plot_feature_heatmap <- function(explanations, feature_nums = NULL,
     
     # Prepare features for ordering
     feature_matrix <- heatmap_data %>%
-      dplyr::filter(.data$feature_num == paste("Feature", min_feat_num)) %>%
+      dplyr::filter(.data$feature_num == paste("LIME Feature", min_feat_num)) %>%
       dplyr::mutate(method = paste(.data$sim_method, .data$nbins, .data$gower_pow)) %>%
       dplyr::select(.data$method, .data$feature, .data$case) %>% 
       mutate(feature = as.numeric(.data$feature)) %>%
@@ -198,8 +198,8 @@ plot_feature_heatmap <- function(explanations, feature_nums = NULL,
     theme_grey() +
     labs(x = "Number of Bins",
          y = "Prediction Number",
-         fill = "Feature",
-         color = "Feature")
+         fill = "Complex \nModel \nFeature",
+         color = "Complex \nModel \nFeature")
   
   # Facet, add grey scale colors, and return the plot
   plot + 

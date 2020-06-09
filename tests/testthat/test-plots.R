@@ -9,7 +9,7 @@ x_test = sine_data_test[1:5, c("x1", "x2", "x3")]
 y_test = factor(sine_data_test$y)[1:5]
 
 # Fit a random forest to the sine training data
-set.seed(573939903)
+set.seed(573939905)
 rf <- randomForest::randomForest(x = x_train, y = y_train)
 
 # Run apply_lime
