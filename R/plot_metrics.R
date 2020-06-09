@@ -132,7 +132,7 @@ plot_metrics <- function(explanations, metrics = 'all', add_lines = FALSE, rank_
     theme_grey() +
     labs(x = "Number of Bins",
          y = "Metric Value",
-         color = "Rank")
+         color = "Rank \n(within \na metric)")
 
 }
 
