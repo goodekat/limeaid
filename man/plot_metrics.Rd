@@ -5,7 +5,7 @@
 \title{Plot of LIME Comparison Metrics}
 \usage{
 plot_metrics(explanations, metrics = "all", add_lines = FALSE,
-  include_sd = FALSE)
+  rank_legend = "continuous")
 }
 \arguments{
 \item{explanations}{Explain dataframe from the list returned by apply_lime.}
@@ -14,7 +14,7 @@ plot_metrics(explanations, metrics = "all", add_lines = FALSE,
 
 \item{add_lines}{Draw lines between tuning parameters with the same gower power.}
 
-\item{include_sd}{Should error bars displaying plus/minus one standard deviation for R2 and/or fidelity be included? (Default is FALSE.)}
+\item{rank_legend}{Specifies whether the legend for rank is treated as 'continuous' or 'discrete'.}
 }
 \description{
 Plots the specified comparison metrics versus LIME tunning parameters.

@@ -5,7 +5,7 @@
 #' @param explanations Explain dataframe from the list returned by apply_lime.
 #' @param metrics Vector specifying metrics to compute. Default is 'all'. See details for metrics available.
 #' @param add_lines Draw lines between tuning parameters with the same gower power.
-#' @param include_sd Should error bars displaying plus/minus one standard deviation for R2 and/or fidelity be included? (Default is FALSE.)
+#' @param rank_legend Specifies whether the legend for rank is treated as 'continuous' or 'discrete'.
 #'
 #' @details The metrics available are listed below.
 #'
@@ -21,7 +21,7 @@
 #'   Knowledge Discovery and Data Mining, San Francisco, CA, USA, August
 #'   13-17, 2016, 1135–1144.
 #'
-#' @importFrom ggplot2 scale_colour_gradient
+#' @importFrom ggplot2 scale_colour_grey
 #' @importFrom tidyr gather
 #' @importFrom scales seq_gradient_pal
 #'
@@ -54,7 +54,7 @@
 #' plot_metrics(res$explain, metrics = "msee")
 
 
-plot_metrics <- function(explanations, metrics = 'all', add_lines = FALSE, include_sd = FALSE){
+plot_metrics <- function(explanations, metrics = 'all', add_lines = FALSE, rank_legend = 'continuous'){
 
   # Checks
   checkmate::expect_data_frame(explanations)
@@ -94,7 +94,7 @@ plot_metrics <- function(explanations, metrics = 'all', add_lines = FALSE, inclu
     mutate(metric = factor(.data$metric, levels = c("Average R2", "Average Fidelity", "MSEE"))) %>%
     mutate(ranking_value = ifelse(.data$metric == "Average R2", -.data$value, .data$value)) %>%
     group_by(.data$metric) %>%
-    mutate(rank = factor(rank(.data$ranking_value)),
+    mutate(rank = rank(.data$ranking_value),
            gower_pow = factor(.data$gower_pow)) %>%
     arrange(.data$metric, .data$value)
 
@@ -102,24 +102,34 @@ plot_metrics <- function(explanations, metrics = 'all', add_lines = FALSE, inclu
   # was specified
   if (length(unique(plot_data$gower_pow)) == 1) {
     plot <- ggplot(plot_data, 
-                   aes(x = .data$nbins_plot, y = .data$value, color = .data$rank))
+                   aes(x = .data$nbins_plot, y = .data$value))
   } else {
     plot <- ggplot(plot_data, 
-                   aes(x = .data$nbins_plot, y = .data$value)) + 
+                   aes(x = .data$nbins_plot, y = .data$value, shape = .data$gower_pow)) + 
       labs(shape = "Gower \nPower")
   }
   
   # Add lines to the plot if requested
-  if (add_lines == TRUE) 
-    plot <- plot + geom_line(aes(group = .data$gower_pow), color = "grey50")
+  if (add_lines == TRUE) {
+    plot <- plot + geom_line(aes(group = factor(.data$gower_pow)), size = 0.1)
+  }
+  
+  # Add points and color based on the number of ranks
+  if (rank_legend == "continuous") {
+    plot <- plot + geom_point(aes(color = .data$rank)) + 
+      scale_color_gradient(low = "black", high = "grey85")
+  } else if (rank_legend == "discrete") {
+    plot <- plot + geom_point(aes(color = factor(.data$rank))) + 
+      scale_colour_grey()
+  } else {
+    stop("'rank_legend' specified incorrectly. Must by 'continuous' or 'discrete'.")
+  }
   
   # Add the additional layers to the plot
   plot +
-    geom_point(aes(color = .data$rank, shape = .data$gower_pow)) +
     facet_grid(.data$metric ~ .data$sim_method_plot, 
                scales = "free", space = "free_x") +
     theme_grey() +
-    scale_colour_grey() +
     labs(x = "Number of Bins",
          y = "Metric Value",
          color = "Rank")
