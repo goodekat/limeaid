@@ -177,20 +177,16 @@ plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha
       geom_point(data = sim_data_plot,
                  mapping =  aes(x = .data$v2, 
                                 y = .data$v1, 
-                                fill = complex_pred, 
+                                color = complex_pred, 
                                 size = .data$weights),
-                 alpha = alpha,
-                 shape = 21, 
-                 stroke = 0)
+                 alpha = alpha)
   } else {
     plot <- ggplot() + 
       geom_point(data = sim_data_plot,
                  mapping =  aes(x = .data$v2, 
                                 y = .data$v1, 
-                                fill = complex_pred),
-                 alpha = alpha,
-                 shape = 21,
-                 stroke = 0)
+                                color = complex_pred),
+                 alpha = alpha)
   }
   
   # Add the bins to the plot if requested
@@ -201,7 +197,7 @@ plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha
                               xmax = .data$x_upper,
                               ymin = -Inf,
                               ymax = Inf,
-                              color = .data$x_linetype,
+                              color = .data$x_color,
                               linetype = .data$x_linetype),
                 alpha = 0.25,
                 fill = "grey90") +
@@ -210,10 +206,19 @@ plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha
                               xmax = Inf,
                               ymin = .data$y_lower,
                               ymax = .data$y_upper,
-                              color = .data$y_linetype,
+                              color = .data$y_color,
                               linetype = .data$y_linetype),
                 alpha = 0.25,
-                fill = "grey90")
+                fill = "grey90") + 
+      guides(linetype = guide_legend(
+               override.aes = list(
+                 color = line_colors %>% 
+                   mutate(color = ifelse(.data$color == 1, "steelblue", "firebrick")) %>% 
+                   arrange(.data$linetype) %>% 
+                   pull(.data$color) %>% 
+                   unique()
+               )
+             ))
   }
   
   
@@ -233,7 +238,12 @@ plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha
       alpha = 0.8
     ) +
     facet_grid(.data$f1 ~ .data$f2, scales = "free", switch = "both") +
-    scale_color_manual(values = c("firebrick", "steelblue")) +
+    scale_color_gradient2(
+      low = "firebrick",
+      high = "steelblue",
+      midpoint = 0.5,
+      limits = c(0, 1)
+    ) +
     scale_fill_gradient2(
       low = "firebrick",
       high = "steelblue",
@@ -253,13 +263,12 @@ plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha
       x = "",
       y = "",
       fill = "Complex \nModel \nPrediction",
+      color = "Complex \nModel \nPrediction",
       shape = "",
       size = "Weight",
-      color = "",
       linetype = ""
     ) +
-    guides(shape = guide_legend(order = 1),
-           size = guide_legend(override.aes = list(shape = 16)))
+    guides(shape = guide_legend(order = 1))
   
   # Add a title to the plot if requested
   if (title.opt == TRUE) {
@@ -284,3 +293,4 @@ plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha
   }
 
 }
+
