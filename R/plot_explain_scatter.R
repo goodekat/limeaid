@@ -11,7 +11,7 @@
 #' @param title.opt Should a title be included that lists the 
 #'        simulation method and Gower exponent? (Default is TRUE.)
 #'        
-#' @importFrom dplyr mutate_at slice
+#' @importFrom dplyr distinct mutate_at slice
 #' @importFrom ggplot2 element_rect geom_hline geom_rect geom_vline guides guide_legend scale_color_gradient2 scale_fill_gradient2 scale_linetype_manual scale_shape_manual scale_size theme_grey
 #' @importFrom utils combn
 #' @export plot_explain_scatter
@@ -140,12 +140,17 @@ plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha
     
     # Identify if feature weights are positive/negative to associate 
     # with line colors
-    line_colors <- explanation %>% 
+    line_colors <- explanation %>%
       select(.data$feature, .data$feature_weight) %>%
-      mutate(color = ifelse(.data$feature_weight >= 0, 1, 0),
-             linetype = ifelse(.data$feature_weight >= 0, 
-                               paste("Supports", explanation$label[1]),
-                               paste("Contradicts", explanation$label[1])))
+      mutate(
+        color = ifelse(.data$feature_weight >= 0, 1, 0),
+        linetype = ifelse(
+          .data$feature_weight >= 0,
+          paste("Supports", explanation$label[1]),
+          paste("Contradicts", explanation$label[1])
+        )
+      ) %>%
+      mutate(linecolor = ifelse(.data$color == 1, "steelblue", "firebrick"))
     
     # Create bin data for plotting
     bin_data_plot <- purrr::map_df(
@@ -190,37 +195,46 @@ plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha
   }
   
   # Add the bins to the plot if requested
-  if (explanation$sim_method[1] %in% c("quantile_bins", "equal_bins") & bins == TRUE) {
-    plot <- plot + 
-      geom_rect(data = bin_data_plot,
-                mapping = aes(xmin = .data$x_lower,
-                              xmax = .data$x_upper,
-                              ymin = -Inf,
-                              ymax = Inf,
-                              color = .data$x_color,
-                              linetype = .data$x_linetype),
-                alpha = 0.25,
-                fill = "grey90") +
-      geom_rect(data = bin_data_plot,
-                mapping = aes(xmin = -Inf,
-                              xmax = Inf,
-                              ymin = .data$y_lower,
-                              ymax = .data$y_upper,
-                              color = .data$y_color,
-                              linetype = .data$y_linetype),
-                alpha = 0.25,
-                fill = "grey90") + 
+  if (explanation$sim_method[1] %in% c("quantile_bins", "equal_bins") &
+      bins == TRUE) {
+    plot <- plot +
+      geom_rect(
+        data = bin_data_plot,
+        mapping = aes(
+          xmin = .data$x_lower,
+          xmax = .data$x_upper,
+          ymin = -Inf,
+          ymax = Inf,
+          color = .data$x_color,
+          linetype = .data$x_linetype
+        ),
+        alpha = 0.25,
+        fill = "grey90"
+      ) +
+      geom_rect(
+        data = bin_data_plot,
+        mapping = aes(
+          xmin = -Inf,
+          xmax = Inf,
+          ymin = .data$y_lower,
+          ymax = .data$y_upper,
+          color = .data$y_color,
+          linetype = .data$y_linetype
+        ),
+        alpha = 0.25,
+        fill = "grey90"
+      ) +
       guides(linetype = guide_legend(
-               override.aes = list(
-                 color = line_colors %>% 
-                   mutate(color = ifelse(.data$color == 1, "steelblue", "firebrick")) %>% 
-                   arrange(.data$linetype) %>% 
-                   pull(.data$color) %>% 
-                   unique()
-               )
-             ))
+        order = 2, reverse = TRUE,
+        override.aes = list( 
+          color = line_colors %>%
+            select(.data$linetype, .data$linecolor) %>%
+            distinct() %>%
+            arrange(desc(.data$linecolor)) %>%
+            pull(.data$linecolor)
+        )
+      ))
   }
-  
   
   # Add poi data and additional structure to the plot
   plot <- plot +
