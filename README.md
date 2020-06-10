@@ -72,9 +72,9 @@ plot_metrics(explanations, add_lines = TRUE)
 
 ``` r
 # Plots of several explanations of interest (2-4 quantile bins)
-plot_grid(plot_expl_scatter(explanations[1:2,]),
-          plot_expl_scatter(explanations[11:12,]),
-          plot_expl_scatter(explanations[21:22,]),
+plot_grid(plot_explain_scatter(explanations[1:2,]),
+          plot_explain_scatter(explanations[11:12,]),
+          plot_explain_scatter(explanations[21:22,]),
           nrow = 1)
 ```
 
@@ -82,9 +82,9 @@ plot_grid(plot_expl_scatter(explanations[1:2,]),
 
 ``` r
 # Plots of several explanations of interest (2-4 equal bins)
-plot_grid(plot_expl_scatter(explanations[31:32,]),
-          plot_expl_scatter(explanations[41:42,]),
-          plot_expl_scatter(explanations[51:52,]),
+plot_grid(plot_explain_scatter(explanations[31:32,]),
+          plot_explain_scatter(explanations[41:42,]),
+          plot_explain_scatter(explanations[51:52,]),
           nrow = 1)
 ```
 
@@ -92,7 +92,7 @@ plot_grid(plot_expl_scatter(explanations[31:32,]),
 
 ``` r
 # Plots of an explanation of interest (kernel density)
-plot_expl_scatter(explanations[121:122,])
+plot_explain_scatter(explanations[121:122,])
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+<img src="README_files/figure-gfm/unnamed-chunk-6-1.png" width="50%" />

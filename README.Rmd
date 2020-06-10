@@ -68,7 +68,7 @@ plot_feature_heatmap(explanations, order_method = "PCA")
 plot_metrics(explanations, add_lines = TRUE)
 ```
 
-```{r fig.width = 15, fig.height = 4}
+```{r fig.width = 21, fig.height = 6}
 # Plots of several explanations of interest (2-4 quantile bins)
 plot_grid(plot_explain_scatter(explanations[1:2,]),
           plot_explain_scatter(explanations[11:12,]),
@@ -82,7 +82,7 @@ plot_grid(plot_explain_scatter(explanations[31:32,]),
           nrow = 1)
 ```
 
-```{r fig.width = 5, fig.height = 4}
+```{r fig.width = 7, fig.height = 6, out.width = "50%"}
 # Plots of an explanation of interest (kernel density)
 plot_explain_scatter(explanations[121:122,])
 ```

@@ -12,7 +12,7 @@
 #'        simulation method and Gower exponent? (Default is TRUE.)
 #'        
 #' @importFrom dplyr mutate_at slice
-#' @importFrom ggplot2 element_rect geom_hline geom_vline guides guide_legend scale_color_gradient2 scale_fill_gradient2 scale_shape_manual scale_size theme_grey
+#' @importFrom ggplot2 element_rect geom_hline geom_rect geom_vline guides guide_legend scale_color_gradient2 scale_fill_gradient2 scale_linetype_manual scale_shape_manual scale_size theme_grey
 #' @importFrom utils combn
 #' @export plot_explain_scatter
 #' 
@@ -138,26 +138,38 @@ plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha
       tidyr::pivot_wider(names_from = "feature",
                          values_from = "value")
     
+    # Identify if feature weights are positive/negative to associate 
+    # with line colors
+    line_colors <- explanation %>% 
+      select(.data$feature, .data$feature_weight) %>%
+      mutate(color = ifelse(.data$feature_weight >= 0, 1, 0),
+             linetype = ifelse(.data$feature_weight >= 0, 
+                               paste("Supports", explanation$label[1]),
+                               paste("Contradicts", explanation$label[1])))
+    
     # Create bin data for plotting
     bin_data_plot <- purrr::map_df(
       .x = 1:nrow(feature_pairs),
       .f = function(row) {
         data.frame(f1 = as.character(feature_pairs[row,1]),
                    f2 = as.character(feature_pairs[row,2]),
-                   y = bin_bounds %>% pull(feature_pairs[row,1]),
-                   x = bin_bounds %>% pull(feature_pairs[row,2])) %>%
+                   y_lower = bin_bounds %>% filter(.data$bound == "lower") %>% pull(feature_pairs[row,1]),
+                   y_upper = bin_bounds %>% filter(.data$bound == "upper") %>% pull(feature_pairs[row,1]),
+                   y_color = line_colors %>% filter(.data$feature == feature_pairs[row,1]) %>% pull(.data$color),
+                   y_linetype = line_colors %>% filter(.data$feature == feature_pairs[row,1]) %>% pull(.data$linetype),
+                   x_lower = bin_bounds %>% filter(.data$bound == "lower") %>% pull(feature_pairs[row,2]),
+                   x_upper = bin_bounds %>% filter(.data$bound == "upper") %>% pull(feature_pairs[row,2]),
+                   x_color = line_colors %>% filter(.data$feature == feature_pairs[row,2]) %>% pull(.data$color),
+                   x_linetype = line_colors %>% filter(.data$feature == feature_pairs[row,2]) %>% pull(.data$linetype)) %>%
           dplyr::mutate_at(.vars = c("f1", "f2"), 
                            .funs = as.character) %>%
-          dplyr::mutate_at(.vars = c("y", "x"), 
-                           .funs = function(val) as.numeric(as.character(val))) %>%
-          dplyr::mutate(y = ifelse(.data$y == -Inf | .data$y == Inf, NA, .data$y),
-                        x = ifelse(.data$x == -Inf | .data$x == Inf, NA, .data$x))
+          dplyr::mutate_at(.vars = c("y_lower", "y_upper", "x_lower", "x_upper"), 
+                           .funs = function(val) as.numeric(as.character(val)))
       }) %>%
       dplyr::mutate(f1 = factor(.data$f1, levels = unique(feature_pairs[,1])),
                     f2 = factor(.data$f2, levels = unique(feature_pairs[,2])))
     
   }
-  
   
   # Start the creation of the plot (including weights based on option specified)
   if (weights == TRUE) {
@@ -165,61 +177,89 @@ plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha
       geom_point(data = sim_data_plot,
                  mapping =  aes(x = .data$v2, 
                                 y = .data$v1, 
-                                color = complex_pred, 
+                                fill = complex_pred, 
                                 size = .data$weights),
-                 alpha = alpha)
+                 alpha = alpha,
+                 shape = 21, 
+                 stroke = 0)
   } else {
     plot <- ggplot() + 
       geom_point(data = sim_data_plot,
                  mapping =  aes(x = .data$v2, 
                                 y = .data$v1, 
-                                color = complex_pred),
-                 alpha = alpha)
+                                fill = complex_pred),
+                 alpha = alpha,
+                 shape = 21,
+                 stroke = 0)
   }
-  
-  # Add poi data and additional structure to the plot
-  plot <- plot + 
-    geom_point(data = poi_data_plot %>% 
-                 mutate(shape = "Prediction \nof Interest"), 
-               mapping = aes(x = .data$v2, 
-                             y = .data$v1, 
-                             fill = complex_pred, 
-                             shape = .data$shape),
-               color = "black",
-               size = 5,
-               alpha = 0.8) +
-    facet_grid(.data$f1 ~ .data$f2, scales = "free", switch = "both") + 
-    scale_color_gradient2(low = "firebrick", 
-                          high = "steelblue", 
-                          midpoint = 0.5, 
-                          limits = c(0, 1)) + 
-    scale_fill_gradient2(low = "firebrick", 
-                         high = "steelblue", 
-                          midpoint = 0.5, 
-                          limits = c(0, 1)) + 
-    scale_shape_manual(values = 23) +
-    scale_size(range = c(0, 2)) +
-    theme_grey() +
-    theme(strip.placement = "outside",
-          strip.background = element_rect(color = "white", 
-                                          fill = "white")) + 
-    labs(x = "", 
-         y = "", 
-         color = "Complex \nModel \nPrediction",
-         fill = "Complex \nModel \nPrediction", 
-         shape = "",
-         size = "Weight") + 
-    guides(shape = guide_legend(order = 1),
-           fill = FALSE)
   
   # Add the bins to the plot if requested
   if (explanation$sim_method[1] %in% c("quantile_bins", "equal_bins") & bins == TRUE) {
     plot <- plot + 
-      geom_vline(data = bin_data_plot %>% select(-.data$y) %>% stats::na.omit(),
-                 mapping = aes(xintercept = .data$x)) +
-      geom_hline(data = bin_data_plot %>% select(-.data$x) %>% stats::na.omit(),
-                 mapping = aes(yintercept = .data$y))
+      geom_rect(data = bin_data_plot,
+                mapping = aes(xmin = .data$x_lower,
+                              xmax = .data$x_upper,
+                              ymin = -Inf,
+                              ymax = Inf,
+                              color = .data$x_linetype,
+                              linetype = .data$x_linetype),
+                alpha = 0.25,
+                fill = "grey90") +
+      geom_rect(data = bin_data_plot,
+                mapping = aes(xmin = -Inf,
+                              xmax = Inf,
+                              ymin = .data$y_lower,
+                              ymax = .data$y_upper,
+                              color = .data$y_linetype,
+                              linetype = .data$y_linetype),
+                alpha = 0.25,
+                fill = "grey90")
   }
+  
+  
+  # Add poi data and additional structure to the plot
+  plot <- plot +
+    geom_point(
+      data = poi_data_plot %>%
+        mutate(shape = "Prediction \nof Interest"),
+      mapping = aes(
+        x = .data$v2,
+        y = .data$v1,
+        fill = complex_pred,
+        shape = .data$shape
+      ),
+      color = "black",
+      size = 5,
+      alpha = 0.8
+    ) +
+    facet_grid(.data$f1 ~ .data$f2, scales = "free", switch = "both") +
+    scale_color_manual(values = c("firebrick", "steelblue")) +
+    scale_fill_gradient2(
+      low = "firebrick",
+      high = "steelblue",
+      midpoint = 0.5,
+      limits = c(0, 1)
+    ) +
+    scale_shape_manual(values = 23) +
+    scale_size(range = c(0, 2)) +
+    scale_linetype_manual(values = rep("solid", 2)) +
+    theme_grey() +
+    theme(
+      strip.placement = "outside",
+      strip.background = element_rect(color = "white",
+                                      fill = "white")
+    ) +
+    labs(
+      x = "",
+      y = "",
+      fill = "Complex \nModel \nPrediction",
+      shape = "",
+      size = "Weight",
+      color = "",
+      linetype = ""
+    ) +
+    guides(shape = guide_legend(order = 1),
+           size = guide_legend(override.aes = list(shape = 16)))
   
   # Add a title to the plot if requested
   if (title.opt == TRUE) {
