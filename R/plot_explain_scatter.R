@@ -46,6 +46,8 @@
 
 plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha = 1, title.opt = TRUE) {
   
+  ## Organizing data for the figure ---------------------------------------------
+  
   # Sort the explanation by the magnitude of the feature weight
   explanation <- explanation %>% arrange(desc(abs(.data$feature_weight)))
   
@@ -176,6 +178,8 @@ plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha
     
   }
   
+  ## Creation of the figure -----------------------------------------------------
+  
   # Start the creation of the plot (including weights based on option specified)
   if (weights == TRUE) {
     plot <- ggplot() + 
@@ -208,8 +212,7 @@ plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha
           color = .data$x_color,
           linetype = .data$x_linetype
         ),
-        alpha = 0.25,
-        fill = "grey90"
+        alpha = 0
       ) +
       geom_rect(
         data = bin_data_plot,
@@ -221,8 +224,7 @@ plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha
           color = .data$y_color,
           linetype = .data$y_linetype
         ),
-        alpha = 0.25,
-        fill = "grey90"
+        alpha = 0
       ) +
       guides(linetype = guide_legend(
         order = 2, reverse = TRUE,
