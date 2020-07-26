@@ -4,7 +4,9 @@
 \name{sine_data_train}
 \alias{sine_data_train}
 \title{Sine Classifier Training Data}
-\format{A data.frame.}
+\format{
+A data.frame.
+}
 \usage{
 sine_data_train
 }

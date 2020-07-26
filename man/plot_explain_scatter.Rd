@@ -4,8 +4,13 @@
 \alias{plot_explain_scatter}
 \title{Visualize the explanation of interest (eoi) and LIME simulated data}
 \usage{
-plot_explain_scatter(explanation, bins = TRUE, weights = TRUE,
-  alpha = 1, title.opt = TRUE)
+plot_explain_scatter(
+  explanation,
+  bins = TRUE,
+  weights = TRUE,
+  alpha = 1,
+  title.opt = TRUE
+)
 }
 \arguments{
 \item{explanation}{Rows from the LIME explanations associated 

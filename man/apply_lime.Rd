@@ -4,10 +4,24 @@
 \alias{apply_lime}
 \title{Apply Different Implementations of LIME}
 \usage{
-apply_lime(train, test, model, sim_method, nbins = 4, label, n_features,
-  n_permutations = 5000, feature_select = "auto", dist_fun = "gower",
-  kernel_width = NULL, gower_pow = 1, all_fs = FALSE,
-  return_perms = FALSE, parallel = FALSE, seed = NULL)
+apply_lime(
+  train,
+  test,
+  model,
+  sim_method,
+  nbins = 4,
+  label,
+  n_features,
+  n_permutations = 5000,
+  feature_select = "auto",
+  dist_fun = "gower",
+  kernel_width = NULL,
+  gower_pow = 1,
+  all_fs = FALSE,
+  return_perms = FALSE,
+  parallel = FALSE,
+  seed = NULL
+)
 }
 \arguments{
 \item{train}{Dataframe of training data features.}

@@ -12,7 +12,8 @@
 #'        simulation method and Gower exponent? (Default is TRUE.)
 #'        
 #' @importFrom dplyr distinct mutate_at slice
-#' @importFrom ggplot2 element_rect geom_hline geom_rect geom_vline guides guide_legend scale_color_gradient2 scale_fill_gradient2 scale_linetype_manual scale_shape_manual scale_size theme_grey
+#' @importFrom ggplot2 element_rect facet_wrap geom_hline geom_rect geom_vline guides guide_legend scale_color_gradient2 scale_fill_gradient2 scale_linetype_manual scale_shape_manual scale_size theme_grey
+#' @importFrom tidyr pivot_longer
 #' @importFrom utils combn
 #' @export plot_explain_scatter
 #' 
@@ -51,7 +52,7 @@ plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha
   # Sort the explanation by the magnitude of the feature weight
   explanation <- explanation %>% arrange(desc(abs(.data$feature_weight)))
   
-  # Extract the label associated with the explanation
+  # Extract the label associated with the explanations
   eoi_label = explanation$label[1]
   
   # Extract the predictions from the complex model associated
@@ -87,10 +88,41 @@ plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha
                   weights = sim_weights[[1]],
                   obs = 1:n())
   
+  # Determine if the simulation method is bin or density based
+  if (explanation$sim_method[1] %in% c("quantile_bins", "equal_bins")) {
+    plot_bin_based(
+      explanation,
+      eoi_features,
+      sim_data,
+      bins = bins,
+      weights = weights,
+      alpha = alpha,
+      title.opt = title.opt
+    )
+  } else if (explanation$sim_method[1] %in% c("kernel_density", "normal_approx")) {
+    plot_density_based(
+      explanation,
+      eoi_features,
+      sim_data,
+      bins = bins,
+      weights = weights,
+      alpha = alpha,
+      title.opt = title.opt
+    )
+  } else {
+    stop("sim_method specified incorrectly")
+  }
+  
+}
+
+plot_bin_based <- function(explanation, eoi_features, sim_data, 
+                           bins = bins, weights = weights, 
+                           alpha = alpha, title.opt = title.opt) {
+  
   # Create pairs of features to use in plot
   feature_pairs <- t(combn(eoi_features, 2))
   
-  # Create data for plotting
+  # Put the simulated data in the proper order for the plot
   sim_data_plot <- purrr::map_df(
     .x = 1:nrow(feature_pairs),
     .f = function(row) {
@@ -111,7 +143,7 @@ plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha
                          value = explanation$feature_value) %>%
     tidyr::pivot_wider(names_from = "feature", values_from = "value")
   
-  # Create data for plotting
+  # Prepare the data for the prediction of interest
   poi_data_plot <- purrr::map_df(
     .x = 1:nrow(feature_pairs),
     .f = function(row) {
@@ -126,7 +158,7 @@ plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha
                   f2 = factor(.data$f2, levels = unique(feature_pairs[,2])))
   
   # Create bin data if requested and appropriate
-  if (explanation$sim_method[1] %in% c("quantile_bins", "equal_bins") & bins == TRUE) {
+  if (explanation$sim_method[1] %in% c("quantile_bins", "equal_bins") & bins == TRUE) { 
     
     # Extract the bin bounds
     bin_bounds <- suppressWarnings(
@@ -307,6 +339,98 @@ plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha
   } else {
     plot
   }
-
+  
 }
 
+plot_density_based <- function(explanation, eoi_features, sim_data,
+                               bins = bins, weights = weights, 
+                               alpha = alpha, title.opt = title.opt) {
+  
+  # Put the simulated data in the proper order for the plot
+  sim_data_plot <- sim_data %>%
+    pivot_longer(names_to = "f1", values_to = "v1", cols = all_of(eoi_features))
+  
+  # Prepare the data for the prediction of interes
+  poi_data_plot <- data.frame(
+    f1 = explanation$feature,
+    v1 = explanation$feature_value,
+    complex_pred = explanation$label_prob[1]
+  )
+  
+  ## Creation of the figure -----------------------------------------------------
+  
+  # Start the creation of the plot (including weights based on option specified)
+  if (weights == TRUE) {
+    plot <- ggplot() + 
+      geom_point(data = sim_data_plot,
+                 mapping =  aes(x = .data$v1, 
+                                y = .data$complex_pred, 
+                                size = .data$weights),
+                 alpha = alpha)
+  } else {
+    plot <- ggplot() + 
+      plot <- ggplot() + 
+        geom_point(data = sim_data_plot,
+                   mapping =  aes(x = .data$v1, 
+                                  y = .data$complex_pred,
+                                  size = .data$weights),
+                   alpha = alpha)
+  }
+  
+  # Add poi data and additional structure to the plot
+  plot <- plot +
+    geom_point(
+      data = poi_data_plot %>%
+        mutate(shape = "Prediction \nof Interest"),
+      mapping = aes(
+        x = .data$v1,
+        y = .data$complex_pred,
+        shape = .data$shape
+      ),
+      color = "black",
+      fill = "steelblue",
+      size = 5,
+      alpha = alpha + 0.2
+    ) +
+    facet_wrap(.data$f1 ~ ., scales = "free", strip.position = "bottom") +
+    scale_shape_manual(values = 23) +
+    scale_size(range = c(0, 2)) +
+    scale_linetype_manual(values = rep("solid", 2)) +
+    theme_grey() +
+    theme(
+      strip.placement = "outside",
+      strip.background = element_rect(color = "white",
+                                      fill = "white")
+    ) +
+    labs(
+      x = "",
+      y = "Complex Model Prediction",
+      shape = "",
+      size = "Weight",
+      linetype = ""
+    ) +
+    guides(shape = guide_legend(order = 1))
+  
+  # Add a title to the plot if requested
+  if (title.opt == TRUE) {
+    plot + 
+      labs(title = ifelse(is.na(explanation$nbins),
+                          paste0("Case: " ,
+                                 explanation$case[1],
+                                 "\nSimulation Method: ", 
+                                 explanation$sim_method[1], 
+                                 "\nGower Exponent:", 
+                                 explanation$gower_pow[1]), 
+                          paste0("Case: " ,
+                                 explanation$case[1],
+                                 "\nSimulation Method: ", 
+                                 explanation$nbins[1], 
+                                 " ", 
+                                 explanation$sim_method[1], 
+                                 "\nGower Exponent: ", 
+                                 explanation$gower_pow[1])))
+  } else {
+    plot
+  }
+  
+}

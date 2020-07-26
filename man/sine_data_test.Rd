@@ -4,7 +4,9 @@
 \name{sine_data_test}
 \alias{sine_data_test}
 \title{Sine Classifier Testing Data}
-\format{A data.frame.}
+\format{
+A data.frame.
+}
 \usage{
 sine_data_test
 }

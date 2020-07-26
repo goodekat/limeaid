@@ -4,8 +4,12 @@
 \alias{plot_metrics}
 \title{Plot of LIME Comparison Metrics}
 \usage{
-plot_metrics(explanations, metrics = "all", add_lines = FALSE,
-  rank_legend = "continuous")
+plot_metrics(
+  explanations,
+  metrics = "all",
+  add_lines = FALSE,
+  rank_legend = "continuous"
+)
 }
 \arguments{
 \item{explanations}{Explain dataframe from the list returned by apply_lime.}

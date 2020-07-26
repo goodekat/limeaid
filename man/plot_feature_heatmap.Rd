@@ -4,8 +4,12 @@
 \alias{plot_feature_heatmap}
 \title{Heatmap of LIME Selected Features}
 \usage{
-plot_feature_heatmap(explanations, feature_nums = NULL,
-  facet_var = NULL, order_method = "obs_num")
+plot_feature_heatmap(
+  explanations,
+  feature_nums = NULL,
+  facet_var = NULL,
+  order_method = "obs_num"
+)
 }
 \arguments{
 \item{explanations}{Explain dataframe from the list returned by apply_lime.}

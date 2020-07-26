@@ -82,7 +82,7 @@ plot_grid(plot_explain_scatter(explanations[31:32,]),
           nrow = 1)
 ```
 
-```{r fig.width = 7, fig.height = 6, out.width = "50%"}
+```{r fig.width = 12, fig.height = 6}
 # Plots of an explanation of interest (kernel density)
 plot_explain_scatter(explanations[121:122,])
 ```
