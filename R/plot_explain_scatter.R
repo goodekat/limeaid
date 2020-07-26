@@ -12,7 +12,8 @@
 #'        simulation method and Gower exponent? (Default is TRUE.)
 #'        
 #' @importFrom dplyr distinct mutate_at slice
-#' @importFrom ggplot2 element_rect facet_wrap geom_hline geom_rect geom_vline guides guide_legend scale_color_gradient2 scale_fill_gradient2 scale_linetype_manual scale_shape_manual scale_size theme_grey
+#' @importFrom ggplot2 element_rect facet_wrap geom_abline geom_hline geom_rect geom_vline guides guide_legend scale_color_gradient2 scale_fill_gradient2 scale_linetype_manual scale_shape_manual scale_size theme_grey
+#' @importFrom stats sd
 #' @importFrom tidyr pivot_longer
 #' @importFrom utils combn
 #' @export plot_explain_scatter
@@ -349,32 +350,43 @@ plot_density_based <- function(explanation, eoi_features, sim_data,
   
   # Put the simulated data in the proper order for the plot
   sim_data_plot <- sim_data %>%
-    pivot_longer(names_to = "f1", values_to = "v1", cols = all_of(eoi_features))
+    mutate_at(.vars = eoi_features, .funs = function(.) (. - mean(.)) / sd(.)) %>%
+    pivot_longer(names_to = "f1", values_to = "v1", cols = all_of(eoi_features)) %>%
+    mutate(f1 = paste(.data$f1, "Standardized"))
+  
+  # Compute the mean and standard deviation of the simulated data
+  sim_data_stats <- 
+    sim_data %>% 
+    select(eoi_features) %>% 
+    pivot_longer(names_to = "feature", cols = everything()) %>%
+    group_by(.data$feature) %>%
+    summarise(mean = mean(.data$value),
+              sd = sd(.data$value), .groups = "drop")
   
   # Prepare the data for the prediction of interes
-  poi_data_plot <- data.frame(
-    f1 = explanation$feature,
-    v1 = explanation$feature_value,
-    complex_pred = explanation$label_prob[1]
-  )
+  poi_data_plot <-
+    explanation %>% 
+    select(.data$feature, .data$feature_value) %>% 
+    arrange(.data$feature) %>%
+    bind_cols(sim_data_stats %>% arrange(.data$feature) %>% select(-.data$feature)) %>% 
+    mutate(f1 = .data$feature, v1 = (.data$feature_value - .data$mean) / .data$sd) %>% 
+    select(.data$f1, .data$v1) %>%
+    mutate(complex_pred = explanation$label_prob[1]) %>%
+    mutate(f1 = paste(.data$f1, "Standardized"))
   
-  # explanation %>% 
-  #   filter(feature != eoi_features[1]) %>%
-  #   pull(perms_raw) %>% 
-  # 
-  # explanation %>% 
-  #   filter(feature != eoi_features[1]) %>%
-  #   mutate(term = feature_weight * feature_value)
-  #   select(feature, model_intercept, feature_weight, feature_value) %>%
-  #   mutate()
-  # 
-  # exp_mod_data_plot
-  # data.frame(
-  #   feature = explanation$feature,
-  #   b0 = explanation$model_intercept)
-  # b0 = 
-  # bs = explanation$feature_weight
-  # x = explanation$feature_value
+  # Prepare the data for plotting the explainer model
+  terms <- explanation %>%
+    mutate(term = .data$feature_weight * .data$feature_value) %>%
+    select(.data$feature, .data$term)
+  slopes <- explanation %>% select(.data$feature, .data$feature_weight)
+  explainer_data_plot <- map_df(eoi_features, function(var) {
+    data.frame(f1 = var,
+               terms %>%
+                 filter(.data$feature != var) %>%
+                 summarise(int = sum(.data$term) + explanation$model_intercept[1]),
+               slope = slopes %>% filter(.data$feature == var) %>% pull(.data$feature_weight))
+  }) %>%
+    mutate(f1 = paste(.data$f1, "Standardized"))
   
   ## Creation of the figure -----------------------------------------------------
   
@@ -410,6 +422,7 @@ plot_density_based <- function(explanation, eoi_features, sim_data,
       size = 5,
       alpha = alpha + 0.2
     ) +
+    geom_abline(data = explainer_data_plot, aes(intercept = .data$int, slope = .data$slope)) +
     facet_wrap(.data$f1 ~ ., scales = "free", strip.position = "bottom") +
     scale_fill_gradient2(
       low = "firebrick",

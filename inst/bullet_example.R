@@ -1,3 +1,5 @@
+library(dplyr)
+
 # Load the hamby data
 bullet_train <- read.csv("../data/hamby173and252_train.csv")
 bullet_test <- read.csv("../data/hamby224_test.csv")
@@ -39,5 +41,11 @@ explanation = bullet_explain_perms %>%
 plot_explain_scatter(explanation)
 lime::plot_features(explanation)
 
+
+explanation = bullet_explain_perms %>% 
+  filter(case == 1, sim_method == "kernel_density")
+
+plot_explain_scatter(explanation)
+lime::plot_features(explanation)
 
 
