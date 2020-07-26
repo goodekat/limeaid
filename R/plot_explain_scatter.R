@@ -45,7 +45,8 @@
 #' # Plot the explanation of interest
 #' plot_explain_scatter(eoi)
 
-plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha = 1, title.opt = TRUE) {
+plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha = 1, 
+                                 title.opt = TRUE) {
   
   ## Organizing data for the figure ---------------------------------------------
   
@@ -218,7 +219,7 @@ plot_bin_based <- function(explanation, eoi_features, sim_data,
       geom_point(data = sim_data_plot,
                  mapping =  aes(x = .data$v2, 
                                 y = .data$v1, 
-                                color = complex_pred, 
+                                color = .data$complex_pred, 
                                 size = .data$weights),
                  alpha = alpha)
   } else {
@@ -226,7 +227,7 @@ plot_bin_based <- function(explanation, eoi_features, sim_data,
       geom_point(data = sim_data_plot,
                  mapping =  aes(x = .data$v2, 
                                 y = .data$v1, 
-                                color = complex_pred),
+                                color = .data$complex_pred),
                  alpha = alpha)
   }
   
@@ -278,7 +279,7 @@ plot_bin_based <- function(explanation, eoi_features, sim_data,
       mapping = aes(
         x = .data$v2,
         y = .data$v1,
-        fill = complex_pred,
+        fill = .data$complex_pred,
         shape = .data$shape
       ),
       color = "black",
@@ -357,6 +358,24 @@ plot_density_based <- function(explanation, eoi_features, sim_data,
     complex_pred = explanation$label_prob[1]
   )
   
+  # explanation %>% 
+  #   filter(feature != eoi_features[1]) %>%
+  #   pull(perms_raw) %>% 
+  # 
+  # explanation %>% 
+  #   filter(feature != eoi_features[1]) %>%
+  #   mutate(term = feature_weight * feature_value)
+  #   select(feature, model_intercept, feature_weight, feature_value) %>%
+  #   mutate()
+  # 
+  # exp_mod_data_plot
+  # data.frame(
+  #   feature = explanation$feature,
+  #   b0 = explanation$model_intercept)
+  # b0 = 
+  # bs = explanation$feature_weight
+  # x = explanation$feature_value
+  
   ## Creation of the figure -----------------------------------------------------
   
   # Start the creation of the plot (including weights based on option specified)
@@ -366,15 +385,14 @@ plot_density_based <- function(explanation, eoi_features, sim_data,
                  mapping =  aes(x = .data$v1, 
                                 y = .data$complex_pred, 
                                 size = .data$weights),
-                 alpha = alpha)
+                 alpha = alpha, color = "grey30")
   } else {
     plot <- ggplot() + 
-      plot <- ggplot() + 
         geom_point(data = sim_data_plot,
                    mapping =  aes(x = .data$v1, 
                                   y = .data$complex_pred,
                                   size = .data$weights),
-                   alpha = alpha)
+                   alpha = alpha, color = "grey30")
   }
   
   # Add poi data and additional structure to the plot
@@ -385,14 +403,20 @@ plot_density_based <- function(explanation, eoi_features, sim_data,
       mapping = aes(
         x = .data$v1,
         y = .data$complex_pred,
+        fill = .data$complex_pred,
         shape = .data$shape
       ),
       color = "black",
-      fill = "steelblue",
       size = 5,
       alpha = alpha + 0.2
     ) +
     facet_wrap(.data$f1 ~ ., scales = "free", strip.position = "bottom") +
+    scale_fill_gradient2(
+      low = "firebrick",
+      high = "steelblue",
+      midpoint = 0.5,
+      limits = c(0, 1)
+    ) +
     scale_shape_manual(values = 23) +
     scale_size(range = c(0, 2)) +
     scale_linetype_manual(values = rep("solid", 2)) +
@@ -405,6 +429,7 @@ plot_density_based <- function(explanation, eoi_features, sim_data,
     labs(
       x = "",
       y = "Complex Model Prediction",
+      fill = "Complex \nModel \nPrediction",
       shape = "",
       size = "Weight",
       linetype = ""
