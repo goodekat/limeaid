@@ -350,14 +350,14 @@ plot_density_based <- function(explanation, eoi_features, sim_data,
   
   # Put the simulated data in the proper order for the plot
   sim_data_plot <- sim_data %>%
-    mutate_at(.vars = eoi_features, .funs = function(.) (. - mean(.)) / sd(.)) %>%
-    pivot_longer(names_to = "f1", values_to = "v1", cols = all_of(eoi_features)) %>%
-    mutate(f1 = paste(.data$f1, "Standardized"))
+    #mutate_at(.vars = eoi_features, .funs = function(.) (. - mean(.)) / sd(.)) %>%
+    pivot_longer(names_to = "f1", values_to = "v1", cols = all_of(eoi_features)) #%>%
+    #mutate(f1 = paste(.data$f1, "Standardized"))
   
   # Compute the mean and standard deviation of the simulated data
   sim_data_stats <- 
     sim_data %>% 
-    select(eoi_features) %>% 
+    select(all_of(eoi_features)) %>% 
     pivot_longer(names_to = "feature", cols = everything()) %>%
     group_by(.data$feature) %>%
     summarise(mean = mean(.data$value),
@@ -368,15 +368,16 @@ plot_density_based <- function(explanation, eoi_features, sim_data,
     explanation %>% 
     select(.data$feature, .data$feature_value) %>% 
     arrange(.data$feature) %>%
-    bind_cols(sim_data_stats %>% arrange(.data$feature) %>% select(-.data$feature)) %>% 
-    mutate(f1 = .data$feature, v1 = (.data$feature_value - .data$mean) / .data$sd) %>% 
+    #bind_cols(sim_data_stats %>% arrange(.data$feature) %>% select(-.data$feature)) %>% 
+    mutate(f1 = .data$feature, v1 = .data$feature_value) %>% # - .data$mean) / .data$sd) %>% 
     select(.data$f1, .data$v1) %>%
-    mutate(complex_pred = explanation$label_prob[1]) %>%
-    mutate(f1 = paste(.data$f1, "Standardized"))
+    mutate(complex_pred = explanation$label_prob[1]) #%>%
+    #mutate(f1 = paste(.data$f1, "Standardized"))
   
   # Prepare the data for plotting the explainer model
   terms <- explanation %>%
-    mutate(term = .data$feature_weight * .data$feature_value) %>%
+    #bind_cols(sim_data_stats %>% arrange(.data$feature) %>% select(-.data$feature)) %>%
+    mutate(term = .data$feature_weight * .data$feature_value) %>% # ((.data$feature_value - .data$mean) / .data$sd)) %>%
     select(.data$feature, .data$term)
   slopes <- explanation %>% select(.data$feature, .data$feature_weight)
   explainer_data_plot <- map_df(eoi_features, function(var) {
@@ -385,8 +386,8 @@ plot_density_based <- function(explanation, eoi_features, sim_data,
                  filter(.data$feature != var) %>%
                  summarise(int = sum(.data$term) + explanation$model_intercept[1]),
                slope = slopes %>% filter(.data$feature == var) %>% pull(.data$feature_weight))
-  }) %>%
-    mutate(f1 = paste(.data$f1, "Standardized"))
+  }) #%>%
+    #mutate(f1 = paste(.data$f1, "Standardized"))
   
   ## Creation of the figure -----------------------------------------------------
   
