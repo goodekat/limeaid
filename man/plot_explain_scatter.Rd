@@ -9,6 +9,7 @@ plot_explain_scatter(
   bins = TRUE,
   weights = TRUE,
   alpha = 1,
+  line_size = 1,
   title.opt = TRUE
 )
 }
@@ -24,6 +25,8 @@ Only applicable is sim_method is equal to "quantile_bins" or
 assigned by LIME? (Default is TRUE.)}
 
 \item{alpha}{Value to use for alpha blending of the points}
+
+\item{line_size}{Size of the lines used for representing the explainer model}
 
 \item{title.opt}{Should a title be included that lists the 
 simulation method and Gower exponent? (Default is TRUE.)}

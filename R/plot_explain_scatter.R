@@ -8,6 +8,7 @@
 #' @param weights Should the size of the points represent the weight 
 #'        assigned by LIME? (Default is TRUE.)
 #' @param alpha Value to use for alpha blending of the points
+#' @param line_size Size of the lines used for representing the explainer model
 #' @param title.opt Should a title be included that lists the 
 #'        simulation method and Gower exponent? (Default is TRUE.)
 #'        
@@ -47,7 +48,7 @@
 #' plot_explain_scatter(eoi)
 
 plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha = 1, 
-                                 title.opt = TRUE) {
+                                 line_size = 1, title.opt = TRUE) {
   
   ## Organizing data for the figure ---------------------------------------------
   
@@ -99,6 +100,7 @@ plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha
       bins = bins,
       weights = weights,
       alpha = alpha,
+      line_size = line_size,
       title.opt = title.opt
     )
   } else if (explanation$sim_method[1] %in% c("kernel_density", "normal_approx")) {
@@ -109,6 +111,7 @@ plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha
       bins = bins,
       weights = weights,
       alpha = alpha,
+      line_size = line_size,
       title.opt = title.opt
     )
   } else {
@@ -119,7 +122,8 @@ plot_explain_scatter <- function(explanation, bins = TRUE, weights = TRUE, alpha
 
 plot_bin_based <- function(explanation, eoi_features, sim_data, 
                            bins = bins, weights = weights, 
-                           alpha = alpha, title.opt = title.opt) {
+                           alpha = alpha, title.opt = title.opt, 
+                           line_size = line_size) {
   
   # Create pairs of features to use in plot
   feature_pairs <- t(combn(eoi_features, 2))
@@ -246,7 +250,8 @@ plot_bin_based <- function(explanation, eoi_features, sim_data,
           color = .data$x_color,
           linetype = .data$x_linetype
         ),
-        alpha = 0
+        alpha = 0,
+        size = line_size
       ) +
       geom_rect(
         data = bin_data_plot,
@@ -258,7 +263,8 @@ plot_bin_based <- function(explanation, eoi_features, sim_data,
           color = .data$y_color,
           linetype = .data$y_linetype
         ),
-        alpha = 0
+        alpha = 0,
+        size = line_size
       ) +
       guides(linetype = guide_legend(
         order = 2, reverse = TRUE,
@@ -346,7 +352,8 @@ plot_bin_based <- function(explanation, eoi_features, sim_data,
 
 plot_density_based <- function(explanation, eoi_features, sim_data,
                                bins = bins, weights = weights, 
-                               alpha = alpha, title.opt = title.opt) {
+                               alpha = alpha, line_size = line_size,
+                               title.opt = title.opt) {
   
   # Put the simulated data in the proper order for the plot
   sim_data_plot <- sim_data %>%
@@ -423,7 +430,7 @@ plot_density_based <- function(explanation, eoi_features, sim_data,
       size = 5,
       alpha = alpha + 0.2
     ) +
-    geom_abline(data = explainer_data_plot, aes(intercept = .data$int, slope = .data$slope)) +
+    geom_abline(data = explainer_data_plot, aes(intercept = .data$int, slope = .data$slope), size = line_size) +
     facet_wrap(.data$f1 ~ ., scales = "free", strip.position = "bottom") +
     scale_fill_gradient2(
       low = "firebrick",
