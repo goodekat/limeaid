@@ -74,7 +74,7 @@ plot_feature_heatmap <- function(explanations, feature_nums = NULL,
     mutate(feature_num = 1:n()) %>%
     ungroup() %>%
     mutate(nbins = factor(.data$nbins),
-           gower_pow = factor(paste("Gower \nPower of", .data$gower_pow)),
+           gower_pow = factor(paste("Gower \nPower \nof", .data$gower_pow)),
            feature = factor(.data$feature),
            sim_method =
              ifelse(.data$sim_method == "quantile_bins", "Quantile Bins",

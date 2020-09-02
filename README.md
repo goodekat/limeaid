@@ -1,13 +1,10 @@
 
 # limeaid <img align="right" width="150" height="170" src="inst/limeaid-sticker2.png">
 
-🚧 under construction 🚧
-
 limeaid is an R package for assessing explanations created using the R
-package [lime](https://lime.data-imaginist.com/).
-
-The current implementation was developed to be used with classification
-models with a binary response and continuous features.
+package [lime](https://lime.data-imaginist.com/). The current
+implementation was developed to be used with classification models with
+a binary response and continuous features.
 
 ``` r
 # Installation instructions 
