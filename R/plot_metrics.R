@@ -116,7 +116,14 @@ plot_metrics <- function(explanations, metrics = 'all', add_lines = FALSE,
   
   # Add lines to the plot if requested
   if (add_lines == TRUE) {
-    plot <- plot + geom_line(aes(group = factor(.data$gower_pow)), size = line_size, alpha = line_alpha)
+    plot <-
+      plot + geom_line(aes(
+        group = factor(.data$gower_pow),
+        linetype = factor(.data$gower_pow)
+      ),
+      size = line_size,
+      alpha = line_alpha) +
+      labs(linetype = "Gower \nPower")
   }
   
   # Add points and color based on the number of ranks
