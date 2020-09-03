@@ -62,7 +62,7 @@ plot_feature_heatmap(explanations, order_method = "PCA")
 
 ``` r
 # Create a plot of metrics for comparing the lime implementations
-plot_metrics(explanations, add_lines = TRUE)
+plot_metrics(explanations, add_lines = TRUE, line_alpha = 0.5)
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->

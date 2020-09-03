@@ -82,7 +82,7 @@ many different sets of tuning parameters.}
 \item{seed}{Number to be used as a seed (if desired).}
 }
 \description{
-Applies LIME with the specified tunning parameter options.
+Applies LIME with the specified tuning parameter options.
 }
 \examples{
 

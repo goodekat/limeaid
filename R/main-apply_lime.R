@@ -1,6 +1,6 @@
 #' Apply Different Implementations of LIME
 #'
-#' Applies LIME with the specified tunning parameter options.
+#' Applies LIME with the specified tuning parameter options.
 #'
 #' @param train Dataframe of training data features.
 #' @param test Dataframe of testing data features.

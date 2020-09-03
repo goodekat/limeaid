@@ -8,20 +8,29 @@ plot_metrics(
   explanations,
   metrics = "all",
   add_lines = FALSE,
-  rank_legend = "continuous"
+  rank_legend = "continuous",
+  point_size = 2,
+  line_size = 0.5,
+  line_alpha = 1
 )
 }
 \arguments{
-\item{explanations}{Explain dataframe from the list returned by apply_lime.}
+\item{explanations}{Explain data frame from the list returned by apply_lime.}
 
 \item{metrics}{Vector specifying metrics to compute. Default is 'all'. See details for metrics available.}
 
 \item{add_lines}{Draw lines between tuning parameters with the same gower power.}
 
 \item{rank_legend}{Specifies whether the legend for rank is treated as 'continuous' or 'discrete'.}
+
+\item{point_size}{Specifies the size of the points.}
+
+\item{line_size}{Specifies the size of the lines (if add_lines is TRUE).}
+
+\item{line_alpha}{Specifies the alpha of the lines (if add_lines is TRUE).}
 }
 \description{
-Plots the specified comparison metrics versus LIME tunning parameters.
+Plots the specified comparison metrics versus LIME tuning parameters.
 }
 \details{
 The metrics available are listed below.

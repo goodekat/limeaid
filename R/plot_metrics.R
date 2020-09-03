@@ -1,11 +1,14 @@
 #' Plot of LIME Comparison Metrics
 #'
-#' Plots the specified comparison metrics versus LIME tunning parameters.
+#' Plots the specified comparison metrics versus LIME tuning parameters.
 #'
-#' @param explanations Explain dataframe from the list returned by apply_lime.
+#' @param explanations Explain data frame from the list returned by apply_lime.
 #' @param metrics Vector specifying metrics to compute. Default is 'all'. See details for metrics available.
 #' @param add_lines Draw lines between tuning parameters with the same gower power.
 #' @param rank_legend Specifies whether the legend for rank is treated as 'continuous' or 'discrete'.
+#' @param point_size Specifies the size of the points.
+#' @param line_size Specifies the size of the lines (if add_lines is TRUE).
+#' @param line_alpha Specifies the alpha of the lines (if add_lines is TRUE).
 #'
 #' @details The metrics available are listed below.
 #'
@@ -54,7 +57,9 @@
 #' plot_metrics(res$explain, metrics = "msee")
 
 
-plot_metrics <- function(explanations, metrics = 'all', add_lines = FALSE, rank_legend = 'continuous'){
+plot_metrics <- function(explanations, metrics = 'all', add_lines = FALSE, 
+                         rank_legend = 'continuous', point_size = 2,
+                         line_size = 0.5, line_alpha = 1){
 
   # Checks
   checkmate::expect_data_frame(explanations)
@@ -111,15 +116,15 @@ plot_metrics <- function(explanations, metrics = 'all', add_lines = FALSE, rank_
   
   # Add lines to the plot if requested
   if (add_lines == TRUE) {
-    plot <- plot + geom_line(aes(group = factor(.data$gower_pow)), size = 0.1)
+    plot <- plot + geom_line(aes(group = factor(.data$gower_pow)), size = line_size, alpha = line_alpha)
   }
   
   # Add points and color based on the number of ranks
   if (rank_legend == "continuous") {
-    plot <- plot + geom_point(aes(color = .data$rank)) + 
+    plot <- plot + geom_point(aes(color = .data$rank), size = point_size) + 
       scale_color_gradient(low = "black", high = "grey85")
   } else if (rank_legend == "discrete") {
-    plot <- plot + geom_point(aes(color = factor(.data$rank))) + 
+    plot <- plot + geom_point(aes(color = factor(.data$rank)), size = point_size) + 
       scale_colour_grey()
   } else {
     stop("'rank_legend' specified incorrectly. Must by 'continuous' or 'discrete'.")

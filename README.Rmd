@@ -61,7 +61,7 @@ plot_feature_heatmap(explanations, order_method = "PCA")
 
 ```{r fig.width = 10, fig.height = 4}
 # Create a plot of metrics for comparing the lime implementations
-plot_metrics(explanations, add_lines = TRUE)
+plot_metrics(explanations, add_lines = TRUE, line_alpha = 0.5)
 ```
 
 ```{r fig.width = 21, fig.height = 6}
