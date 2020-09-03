@@ -21,7 +21,7 @@
 #'   Knowledge Discovery and Data Mining, San Francisco, CA, USA, August
 #'   13-17, 2016, 1135–1144.
 #'
-#' @importFrom ggplot2 scale_color_gradient scale_colour_grey geom_line
+#' @importFrom ggplot2 element_blank scale_color_gradient scale_colour_grey geom_line
 #' @importFrom tidyr gather
 #' @importFrom scales seq_gradient_pal
 #'
@@ -128,10 +128,12 @@ plot_metrics <- function(explanations, metrics = 'all', add_lines = FALSE, rank_
   # Add the additional layers to the plot
   plot +
     facet_grid(.data$metric ~ .data$sim_method_plot, 
-               scales = "free", space = "free_x") +
+               scales = "free", space = "free_x", switch = "y") +
     theme_grey() +
+    theme(strip.placement = "outside", 
+          strip.background = element_blank()) +
     labs(x = "Number of Bins",
-         y = "Metric Value",
+         y = "",
          color = "Rank \n(within \na metric)")
 
 }
