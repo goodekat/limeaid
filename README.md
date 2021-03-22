@@ -4,7 +4,7 @@
 limeaid is an R package for assessing explanations created using the R
 package [lime](https://lime.data-imaginist.com/). The current
 implementation was developed to be used with classification models with
-a binary response and continuous features.
+a binary response and continuous features. See the corresponding paper [here](https://onlinelibrary.wiley.com/doi/full/10.1002/sam.11500). 
 
 ``` r
 # Installation instructions 
